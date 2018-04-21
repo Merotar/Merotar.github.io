@@ -15,17 +15,6 @@ var gameWidth = targetWidth; //window.innerWidth * window.devicePixelRatio;
 var gameHeight = targetHeight; //window.innerHeight * window.devicePixelRatio;
 console.log("wh: ", gameWidth, gameHeight)
 
-var verticalPosFactorGold = 0.9;
-
-var textGold;
-var textGoldWidth = 100;
-var textGoldHeight = 100;
-var textGoldPosX = gameWidth / 12;
-var textGoldPosY= gameHeight*verticalPosFactorGold - textGoldHeight;
-var textShiftY = 8;
-var textColor = "#3C1E00";
-var textFont = "28px Arial";
-
 var globalGold = 0;
 var goldIncrease = 1;
 
@@ -55,7 +44,23 @@ var buttonResourcesHeight =  (playerCanvasInnerHeight - 6*buttonResourcesOffsetY
 var textButtonWidth = buttonResourcesWidth;
 var textButtonHeight = buttonResourcesHeight;
 
+var textGold;
+var textGoldWidth = 100;
+var textGoldHeight = 100;
+var textGoldPosX = playersCanvasPosX * 0.5 - textGoldWidth / 2;
+var textGoldPosY= statusCanvasHeight + gameHeight*0.2 - textGoldHeight;
+var textShiftY = 8;
+var textColor = "#3C1E00";
+var textColorEnemyHp = "#000000";
+var textFont = "28px Arial";
+
+var enemyTargetPosX = gameWidth * 0.8;
+var enemySpeedScale = enemyTargetPosX;
+
 var char0, char1, char2;
+var enemies = [];
+var enemySpawnTimer;
+var enemySpawnTime = 3;
 
 class Button {
     constructor(name, posX, posY, width, height, player, mode) {
@@ -83,13 +88,36 @@ class Button {
     }
 }
 
+var playersConfig = [
+    {
+        "playerNum" : 0,
+        "damage" : 0.5,
+        "damageTime" : 1,
+        "name" : "Claire"
+    },
+    {
+        "playerNum" : 1,
+        "damage" : 0.1,
+        "damageTime" : 0.2,
+        "name" : "Jessie"
+    },
+    {
+        "playerNum" : 2,
+        "damage" : 1,
+        "damageTime" : 2,
+        "name" : "Eleonore"
+    }
+];
+
 class Character {
-    constructor(name, playerNum) {
-        this.name = name;
-        this.playerNum = playerNum;
+    constructor(name, config) {
+        this.name = config["name"];
+        this.playerNum = config["playerNum"];
         this.xp = 0;
         this.xpIncrease = 1;
-        this.innerCanvasX = playersCanvasPosX + playerNum*playerCanvasWidth + playerCanvasWidth*playerCanvasBorderX/2;
+        this.damage = config["damage"];
+        this.damageTime = config["damageTime"];
+        this.innerCanvasX = playersCanvasPosX + this.playerNum*playerCanvasWidth + playerCanvasWidth*playerCanvasBorderX/2;
         this.innerCanvasY = playersCanvasPosY  + playerCanvasHeight*playerCanvasBorderY/2;
         this.innerCanvasWidth = playerCanvasWidth * (1-playerCanvasBorderX);
         this.innerCanvasHeight = playerCanvasHeight * (1-playerCanvasBorderY);
@@ -119,10 +147,22 @@ class Character {
         this.buttonUseAbility = new Button("Use Ability", this.buttonX, this.getButtonY(3) , buttonResourcesWidth, buttonResourcesHeight, this, 1);
         this.buttonTraining = new Button("Trainging", this.buttonX, this.getButtonY(4) , buttonResourcesWidth, buttonResourcesHeight, this, 2);
 
+        ////
+
+        this.damageTimer = game.time.create(false);
+        this.damageTimer.loop(this.damageTime * 1000, this.damageEnemies, this);
+        this.damageTimer.start();
     }
 
     getButtonY(number) {
         return this.innerCanvasY + buttonResourcesOffsetY + number*(buttonResourcesOffsetY + buttonResourcesHeight);
+    }
+
+    damageEnemies() {
+        for (let i = 0; i < enemies.length; i++) {
+            var tmpEnemy = enemies[i];
+            tmpEnemy.hp -= this.damage;
+        }
     }
 }
 
@@ -142,24 +182,57 @@ Character.prototype.update = function () {
     this.textXp.text = "XP: " + this.xp;
 };
 
+enemyConfig = [
+    {
+        "name": "enemy0",
+        "hp" : 5.0,
+        "sprite" : "enemy0",
+        "speed" : 0.05
+    },
+    {
+        "name": "enemy1",
+        "hp" : 10.0,
+        "sprite" : "enemy0",
+        "speed" : 0.1
+    }
+];
+
 class Enemy {
-    constructor (type) {
+    constructor (config) {
         this.width = 60;
         this.height = 120;
         this.posY = statusCanvasHeight - this.height - gameHeight*0.1;
         this.posX = this.width;
-        this.type = type;
+        this.maxHp = config["hp"];
+        this.hp = this.maxHp;
+        this.speed = config["speed"];
+        this.name = config["name"];
 
-        switch(type) {
-            case 0:
-                this.sprite = game.add.sprite(this.posX, this.posY, 'enemy0');
-                this.sprite.width = this.width;
-                this.sprite.height = this.height;
-                this.sprite.tint = 0xffffff;
-                break;
-            default:
-        }
+        this.sprite = game.add.sprite(this.posX, this.posY, config["name"]);
+        this.sprite.width = this.width;
+        this.sprite.height = this.height;
+        this.sprite.tint = 0xffffff;
+
+        this.textHp = game.add.text(this.posX, this.posY - this.height*0.1, this.hp, { font: textFont, fill: textColorEnemyHp, boundsAlignH: "center", boundsAlignV: "middle" });
+        this.textHp.setTextBounds(0, 0, this.width, 0);
     }
+}
+
+Enemy.prototype.update = function (dt) {
+    this.textHp.text = this.hp.toFixed(1);
+    if(this.sprite.x < enemyTargetPosX) {
+        this.sprite.x += this.speed * dt * enemySpeedScale;
+        this.textHp.x += this.speed * dt * enemySpeedScale;
+    }
+};
+
+Enemy.prototype.freeResources = function() {
+    this.sprite.destroy();
+    this.textHp.destroy();
+}
+
+function spawnEnemy() {
+    enemies.push(new Enemy(enemyConfig[0]));
 }
 
 function preload() {
@@ -183,20 +256,35 @@ function create() {
     textGold = game.add.text(textGoldPosX, textGoldPosY, "0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
     textGold.setTextBounds(0, 0, textGoldWidth, textGoldHeight + textShiftY);
 
-    char0 = new Character("name1", 0);
-    char1 = new Character("name2", 1);
-    char2 = new Character("name3", 2);
+    char0 = new Character("name1", playersConfig[0]);
+    char1 = new Character("name2", playersConfig[1]);
+    char2 = new Character("name3", playersConfig[2]);
 
-    enemy = new Enemy(0);
+    enemies.push(new Enemy(enemyConfig[0]));
+
+    enemySpawnTimer = game.time.create(false);
+    enemySpawnTimer.loop(enemySpawnTime * 1000, spawnEnemy, this);
+    enemySpawnTimer.start();
 
     console.log("create");
 }
 
 function update() {
+    var dt = game.time.elapsedMS / 1000.;
     textGold.text = globalGold;
-    char0.update();
-    char1.update();
-    char2.update();
+    char0.update(dt);
+    char1.update(dt);
+    char2.update(dt);
+
+    for (let i = 0; i < enemies.length; i++) {
+        var tmpEnemy = enemies[i];
+        tmpEnemy.update(dt);
+        if (tmpEnemy.hp <= 0) {
+            tmpEnemy.freeResources();
+            enemies.splice(i, 1);
+            delete tmpEnemy;
+        }
+    }
 }
 
 function actionOnClick() {
