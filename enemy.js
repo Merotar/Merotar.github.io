@@ -8,6 +8,7 @@ class Enemy {
         this.hp = this.maxHp;
         this.damage = config["damage"];
         this.speed = config["speed"];
+        this.xp = config["xp"];
         this.name = config["name"];
 
         this.sprite = game.add.sprite(this.posX, this.posY, config["name"]);

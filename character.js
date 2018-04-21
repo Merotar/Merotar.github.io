@@ -63,7 +63,7 @@ class Character {
 
         this.portraitCanvasX = this.innerCanvasX + buttonResourcesOffsetX + playerCanvasBorderX*playerCanvasWidth;
         this.portraitCanvasY = this.innerCanvasY + buttonResourcesOffsetY;
-        this.portraitCanvas = game.add.sprite(this.portraitCanvasX, this.portraitCanvasY, 'canvas');
+        this.portraitCanvas = game.add.sprite(this.portraitCanvasX, this.portraitCanvasY, config["picture"]);
         this.portraitCanvas.width = 0.5 * buttonResourcesWidth;
         this.portraitCanvas.height = 2 * buttonResourcesHeight + buttonResourcesOffsetY;
 
@@ -95,12 +95,14 @@ class Character {
     }
 
     levelUp() {
-        this.level++;
-        this.xp -= xpForLevelup;
-        this.maxHp = this.maxHpBase * this.scaleLevelGain(this.level);
-        //this.xpIncrease = this.xpIncreaseBase * this.scaleLevelGain(this.level);
-        this.damage = this.damageBase * this.scaleLevelGain(this.level);
-        this.damageTime = this.damageTimeBase * this.scaleLevelGain(this.level);
+        if (this.xp >= xpForLevelup) {
+            this.level++;
+            this.xp -= xpForLevelup;
+            this.maxHp = this.maxHpBase * this.scaleLevelGain(this.level);
+            //this.xpIncrease = this.xpIncreaseBase * this.scaleLevelGain(this.level);
+            this.damage = this.damageBase * this.scaleLevelGain(this.level);
+            this.damageTime = this.damageTimeBase * this.scaleLevelGain(this.level);
+        }
     }
 }
 

@@ -4,13 +4,15 @@
     "hp" : 5.0,
     "sprite" : "enemy0",
     "speed" : 0.1,
-    "damage" : 1
+    "damage" : 1,
+    "xp" : 1
   },
   {
     "name": "enemy1",
     "hp" : 10.0,
     "sprite" : "enemy0",
     "speed" : 0.15,
-    "damage" : 1
+    "damage" : 1,
+    "xp" : 2
   }
 ]
