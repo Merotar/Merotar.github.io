@@ -33,12 +33,17 @@ class Character {
         this.level = 0;
         this.damageBase = config["damage"];
         this.damageTimeBase = config["damageTime"];
+        this.skillDamageBase = config["skillDamage"];
+        this.skillReloadTimeBase = config["skillReloadTime"];
         this.xpIncreaseBase = 1;
         this.maxHp = this.maxHpBase;
         this.hp = this.maxHp;
         this.xpIncrease = this.xpIncreaseBase;
         this.damage = this.damageBase;
         this.damageTime = this.damageTimeBase;
+        this.skillDamage =  this.skillDamageBase;
+        this.skillReloadTime = this.skillReloadTimeBase;
+        this.currentSkillTime = this.skillReloadTimeBase;
         this.innerCanvasX = playersCanvasPosX + this.playerNum*playerCanvasWidth + playerCanvasWidth*playerCanvasBorderX/2;
         this.innerCanvasY = playersCanvasPosY  + playerCanvasHeight*playerCanvasBorderY/2;
         this.innerCanvasWidth = playerCanvasWidth * (1-playerCanvasBorderX);
@@ -60,7 +65,6 @@ class Character {
         //this.textBonus.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
         this.textHp = game.add.text(this.ButtonSmallX, this.getButtonY(1), "HP: " + Math.round(this.hp), { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textHp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
-        this.textHp.font = "Revalia";
 
         this.portraitCanvasX = this.innerCanvasX + buttonResourcesOffsetX + playerCanvasBorderX*playerCanvasWidth;
         this.portraitCanvasY = this.innerCanvasY + buttonResourcesOffsetY;
@@ -78,10 +82,27 @@ class Character {
         this.damageTimer = game.time.create(false);
         this.damageTimer.loop(this.damageTime * 1000, this.damageEnemies, this);
         this.damageTimer.start();
+
+        this.skillReloadTimer = game.time.create(false);
+        this.skillReloadTimer.loop(1000, function() {
+            this.currentSkillTime += 1;
+            if (this.currentSkillTime > this.skillReloadTime) {
+                this.currentSkillTime = this.skillReloadTime;
+            }
+        }, this);
+        this.skillReloadTimer.start();
     }
 
     getButtonY(number) {
         return this.innerCanvasY + buttonResourcesOffsetY + number*(buttonResourcesOffsetY + buttonResourcesHeight);
+    }
+
+    drawAttackLine(tmpEnemy) {
+        if (tmpEnemy != null) {
+            var curve = drawCurve(this.innerCanvasX + this.innerCanvasWidth / 2, this.innerCanvasY, tmpEnemy.sprite.centerX, tmpEnemy.sprite.centerY);
+            curve.lifespan = attackLineDuration;
+            attackLineList.push(curve);
+        }
     }
 
     damageEnemies() {
@@ -101,6 +122,8 @@ class Character {
                 var tmpEnemy = enemies[i];
                 tmpEnemy.hp -= this.damage;
                 createDamageText(this.damage, tmpEnemy);
+
+                this.drawAttackLine(tmpEnemy);
             }
         }
 
@@ -109,6 +132,7 @@ class Character {
                 var index = Math.floor(Math.random() * enemies.length);
                 enemies[index].hp -= this.damage;
                 createDamageText(this.damage, enemies[index]);
+                this.drawAttackLine(tmpEnemy);
             }
         }
     }
@@ -125,16 +149,65 @@ class Character {
             //this.xpIncrease = this.xpIncreaseBase * this.scaleLevelGain(this.level);
             this.damage = this.damageBase * this.scaleLevelGain(this.level);
             this.damageTime = this.damageTimeBase * this.scaleLevelGain(this.level);
+            this.skillDamage =  this.skillDamageBase * this.scaleLevelGain(this.level);
+            //this.skillReloadTime =  this.skillReloadTime * this.scaleLevelGain(this.level);
         }
     }
+
+    useSkill() {
+        if (this.currentSkillTime >= this.skillReloadTime){
+            this.currentSkillTime = 0;
+
+            switch (this.playerNum) {
+                case 0:
+                    this.skillDamageAllEnemies();
+                    break;
+                case 1:
+                    this.skillSlowEnemies();
+                    break;
+                case 2:
+                    this.skillIncreaseAttachSpeed();
+                    break;
+                default:
+            }
+        }
+    }
+
+    skillDamageAllEnemies() {
+        shakeScreen(5, 20);
+        for (let i = 0; i < enemies.length; i++) {
+            var tmpEnemy = enemies[i];
+            tmpEnemy.hp -= this.skillDamage;
+            createDamageText(this.skillDamage, tmpEnemy);
+            this.drawAttackLine(tmpEnemy);
+        }
+    }
+
+    skillSlowEnemies() {
+        enemySpeedFactor = 1.0 / this.skillDamage;
+        game.time.events.add(skillSlowDuration, function() {
+            enemySpeedFactor = 1;
+        }, this);
+    }
+
+    skillIncreaseAttachSpeed() {
+        this.damageTimer.destroy();
+        this.damageTimer = game.time.create(false);
+        this.damageTimer.loop(this.damageTime * 1000 / this.skillDamage, this.damageEnemies, this);
+        this.damageTimer.start();
+        game.time.events.add(skillAttackSpeedDuration, function() {
+            this.damageTimer.destroy();
+            this.damageTimer = game.time.create(false);
+            this.damageTimer.loop(this.damageTime * 1000, this.damageEnemies, this);
+            this.damageTimer.start();
+        }, this);
+    }
+
+
 }
 
 Character.prototype.increaseXP = function () {
     this.xp += this.xpIncrease;
-}
-
-Character.prototype.useSkill = function () {
-
 }
 
 Character.prototype.update = function () {
@@ -145,6 +218,12 @@ Character.prototype.update = function () {
         this.buttonLevelUp.button.alpha = 1.0;
     } else {
         this.buttonLevelUp.button.alpha = 0.5;
+    }
+
+    if (this.currentSkillTime >= this.skillReloadTime) {
+        this.buttonUseAbility.button.alpha = 1.0;
+    } else {
+        this.buttonUseAbility.button.alpha = 0.5;
     }
 
     for (let i = 0; i < textDamageList.length; i++) {

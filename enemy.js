@@ -26,8 +26,9 @@ class Enemy {
 Enemy.prototype.update = function (dt) {
     this.textHp.text = (this.hp).toFixed(0);
     if(this.sprite.x < enemyTargetPosX) {
-        this.sprite.x += this.speed * dt * enemySpeedScale;
-        this.textHp.x += this.speed * dt * enemySpeedScale;
+        var addPosX = enemySpeedFactor * this.speed * dt * enemySpeedScale;
+        this.sprite.x += addPosX
+        this.textHp.x += addPosX;
     }
 };
 
@@ -40,4 +41,9 @@ function onClickEnemy() {
     this.hp -= characters[0].damage;
     createDamageText(characters[0].damage, this);
     //shakeScreen(5);
+
+    var thePlayer = characters[0];
+    var curve = drawCurve(thePlayer.innerCanvasX + thePlayer.innerCanvasWidth / 2, thePlayer.innerCanvasY, this.sprite.centerX, this.sprite.centerY);
+    curve.lifespan = attackLineDuration;
+    attackLineList.push(curve);
 }

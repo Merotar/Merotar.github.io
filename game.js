@@ -65,7 +65,7 @@ var damageSizeY = gameHeight * 0.01;
 var textDamageList= [];
 var damageTextSpeed = 0.001;
 
-var enemyTargetPosX = gameWidth * 0.8;
+var enemyTargetPosX = gameWidth * 0.72;
 var enemySpeedScale = enemyTargetPosX;
 
 var characters = [];
@@ -77,12 +77,22 @@ var enemySpawnYmax = statusCanvasHeight - gameHeight*0.05;
 var backgroundSwitchTimer;
 var shakeScreenTimer;
 
+// skills
+var enemySpeedFactor = 1;
+var attackSpeedFactor = 1;
+var skillSlowDuration = 3000;
+var skillAttackSpeedDuration = 3000;
+
+var attackLineList = []
+var attackLineDuration = 100;
+var attackLineHeight = 10;
+
 var xpForLevelup = 10;
 var bloodEmitterList = [];
 
 var backgroundInterpolationSteps = 30;
-var backgroundInterpolationFrequency = 0.1;
-backgroundInterpolationTargetColor = 0xdddddd;
+var backgroundInterpolationFrequency = 0.2;
+var backgroundInterpolationTargetColor = 0xcccccc;
 var characterConfig;
 var enemyConfig;
 
@@ -112,12 +122,12 @@ function switchBackgrounds() {
     imageBackground2.visible = !imageBackground2.visible;
 }
 
-function shakeScreen(magnitude) {
+function shakeScreen(magnitude, duration) {
     var rndX = (2*Math.random()-1) * magnitude;
     var rndY = (2*Math.random()-2) * magnitude;
     game.world.setBounds(rndX, rndY, game.width+rndX, game.height+rndY);
 
-    game.time.events.add(20, resetWorldBounds, this);
+    game.time.events.add(duration, resetWorldBounds, this);
 }
 
 function resetWorldBounds() {
@@ -143,6 +153,20 @@ function bloodExplosion(theEnemy) {
     }, this);
 }
 
+function drawCurve(startX, startY, endX, endY) {
+    var dX = endX - startX;
+    var dY = endY - startY;
+
+    var distance = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
+
+    imageLine = game.add.sprite(startX , startY, 'attackLine');
+    imageLine.width = distance;
+    imageLine.height = attackLineHeight;
+    console.log("angle:", Math.atan2(dY, dX))
+    imageLine.angle = Math.atan2(dY, dX) * 180 / Math.PI;
+    return imageLine;
+}
+
 function preload() {
     console.log("preload");
     game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
@@ -156,6 +180,7 @@ function preload() {
     game.load.image("character2", "assets/img/character0.png");
     game.load.image("blood0", "assets/img/blood0.png");
     game.load.image("line", "assets/img/line.png");
+    game.load.image("attackLine", "assets/img/attackLine.png");
     game.load.image("home", "assets/img/home.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
 
@@ -191,7 +216,7 @@ function create() {
     backgroundSwitchTimer.start();*/
 
 
-    imageHome = game.add.sprite(enemyTargetPosX, statusCanvasHeight*0.2, 'home');
+    imageHome = game.add.sprite(enemyTargetPosX, statusCanvasHeight*0.27, 'home');
     imageHome.width = statusCanvasHeight*0.6;
     imageHome.height = statusCanvasHeight*0.6;
 
@@ -239,7 +264,7 @@ function update() {
             enemies.splice(i, 1);
             delete tmpEnemy;
         } else {
-            if (tmpEnemy.sprite.x > enemyTargetPosX) {
+            if (tmpEnemy.sprite.x + tmpEnemy.sprite.width*0.7 > enemyTargetPosX) {
                 damageRandomCharacter(tmpEnemy.damage);
                 tmpEnemy.freeResources();
                 enemies.splice(i, 1);
@@ -256,8 +281,14 @@ function update() {
 
     for (let i = 0; i < bloodEmitterList.length; i++) {
         if (!bloodEmitterList[i].alive) {
-            console.log("delete");
             bloodEmitterList.splice(i, 1);
+        }
+    }
+
+    for (let i = 0; i < attackLineList.length; i++) {
+        if (!attackLineList[i].alive) {
+            attackLineList[i].destroy();
+            attackLineList.splice(i, 1);
         }
     }
 }
