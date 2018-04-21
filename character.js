@@ -60,6 +60,7 @@ class Character {
         //this.textBonus.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
         this.textHp = game.add.text(this.ButtonSmallX, this.getButtonY(1), "HP: " + Math.round(this.hp), { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textHp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
+        this.textHp.font = "Revalia";
 
         this.portraitCanvasX = this.innerCanvasX + buttonResourcesOffsetX + playerCanvasBorderX*playerCanvasWidth;
         this.portraitCanvasY = this.innerCanvasY + buttonResourcesOffsetY;

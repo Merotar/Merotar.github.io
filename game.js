@@ -54,11 +54,11 @@ var textGoldHeight = 100;
 var textGoldPosX = playersCanvasPosX * 0.5 - textGoldWidth / 2;
 var textGoldPosY= statusCanvasHeight + gameHeight*0.2 - textGoldHeight;
 var textShiftY = 8;
-var textColor = "#3C1E00";
+var textColor = "#000000";
 var textColorEnemyHp = "#000000";
 var damageColor = "#990000";
 var fontFixelSize = Math.floor(buttonResourcesHeight / 2)
-var textFont = fontFixelSize + "px Arial";
+var textFont = fontFixelSize + "px Gamja Flower";
 
 var damageSizeX = gameWidth * 0.01;
 var damageSizeY = gameHeight * 0.01;
@@ -75,9 +75,10 @@ var enemySpawnTime = 2;
 var enemySpawnYmin = gameHeight*0.1;
 var enemySpawnYmax = statusCanvasHeight - gameHeight*0.05;
 var backgroundSwitchTimer;
+var shakeScreenTimer;
 
 var xpForLevelup = 10;
-
+var bloodEmitterList = [];
 
 var backgroundInterpolationSteps = 30;
 var backgroundInterpolationFrequency = 0.1;
@@ -100,7 +101,7 @@ function addXpRandomCharacter(xp) {
 }
 
 function createDamageText(dmg, tmpEnemy) {
-    var textDamage = game.add.text( tmpEnemy.sprite.x,  tmpEnemy.sprite.y - tmpEnemy.height / 2, "-" + dmg, { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
+    var textDamage = game.add.text( tmpEnemy.sprite.x,  tmpEnemy.sprite.y - tmpEnemy.height / 2, "-" + (Math.ceil(dmg)).toFixed(0), { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
     textDamage.setTextBounds(0, 0, tmpEnemy.width, tmpEnemy.height);//damageSizeX, damageSizeY);
     textDamage.lifespan = 1000;
     textDamageList.push(textDamage);
@@ -111,8 +112,40 @@ function switchBackgrounds() {
     imageBackground2.visible = !imageBackground2.visible;
 }
 
+function shakeScreen(magnitude) {
+    var rndX = (2*Math.random()-1) * magnitude;
+    var rndY = (2*Math.random()-2) * magnitude;
+    game.world.setBounds(rndX, rndY, game.width+rndX, game.height+rndY);
+
+    game.time.events.add(20, resetWorldBounds, this);
+}
+
+function resetWorldBounds() {
+    game.world.setBounds(0, 0, game.width, game.height);
+}
+
+function bloodExplosion(theEnemy) {
+    var bloodEmitter = game.add.emitter(theEnemy.sprite.x + theEnemy.sprite.width/2, theEnemy.sprite.y + theEnemy.sprite.height/2, 20);
+
+    bloodEmitter.makeParticles('blood0');
+    bloodEmitter.gravity = 200
+    bloodEmitter.minRotation = 0;
+    bloodEmitter.maxRotation = 0;
+    bloodEmitter.minParticleScale = 0.5;
+    bloodEmitter.maxParticleScale = 1.5;
+    bloodEmitter.minParticleSpeed.setTo(-100, -200);
+    bloodEmitter.maxParticleSpeed.setTo(100, 50);
+    bloodEmitter.setSize(gameHeight * 0.01, gameHeight * 0.01);
+    bloodEmitter.start(true, 5000, false, 5*Math.random()+4);
+    bloodEmitterList.push(bloodEmitter);
+    game.time.events.add(5000, function () {
+        bloodEmitter.destroy();
+    }, this);
+}
+
 function preload() {
     console.log("preload");
+    game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
     game.load.image("button", "assets/img/button.png");
     game.load.image("buttonWide", "assets/img/buttonWide.png");
     game.load.image("canvas", "assets/img/canvas.png");
@@ -121,6 +154,7 @@ function preload() {
     game.load.image("character0", "assets/img/character0.png");
     game.load.image("character1", "assets/img/character0.png");
     game.load.image("character2", "assets/img/character0.png");
+    game.load.image("blood0", "assets/img/blood0.png");
     game.load.image("line", "assets/img/line.png");
     game.load.image("home", "assets/img/home.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
@@ -135,7 +169,9 @@ function preload() {
 function create() {
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
-    game.stage.backgroundColor = '#E7E7E7';
+    game.stage.backgroundColor = '#000000';
+
+    game.physics.startSystem(Phaser.Physics.ARCADE);
 
     characterConfig = game.cache.getJSON('characterConfig');
     enemyConfig = game.cache.getJSON('enemyConfig');
@@ -198,6 +234,7 @@ function update() {
         tmpEnemy.update(dt);
         if (tmpEnemy.hp <= 0) {
             addXpRandomCharacter(tmpEnemy.xp);
+            bloodExplosion(tmpEnemy);
             tmpEnemy.freeResources();
             enemies.splice(i, 1);
             delete tmpEnemy;
@@ -206,8 +243,21 @@ function update() {
                 damageRandomCharacter(tmpEnemy.damage);
                 tmpEnemy.freeResources();
                 enemies.splice(i, 1);
-                delete tmpEnemy;
+                //delete tmpEnemy;
             }
+        }
+    }
+
+    for (let i = 0; i < textDamageList.length; i++) {
+        if (!textDamageList[i].alive) {
+            textDamageList.splice(i, 1);
+        }
+    }
+
+    for (let i = 0; i < bloodEmitterList.length; i++) {
+        if (!bloodEmitterList[i].alive) {
+            console.log("delete");
+            bloodEmitterList.splice(i, 1);
         }
     }
 }

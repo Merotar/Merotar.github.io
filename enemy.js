@@ -18,13 +18,13 @@ class Enemy {
         this.sprite.inputEnabled = true;
         this.sprite.events.onInputDown.add(onClickEnemy, this);
 
-        this.textHp = game.add.text(this.posX, this.posY - this.height*0.1, this.hp, { font: textFont, fill: textColorEnemyHp, boundsAlignH: "center", boundsAlignV: "middle" });
+        this.textHp = game.add.text(this.posX, this.posY - this.height*0.1, (this.hp).toFixed(0), { font: textFont, fill: textColorEnemyHp, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textHp.setTextBounds(0, 0, this.width, 0);
     }
 }
 
 Enemy.prototype.update = function (dt) {
-    this.textHp.text = this.hp.toFixed(1);
+    this.textHp.text = (this.hp).toFixed(0);
     if(this.sprite.x < enemyTargetPosX) {
         this.sprite.x += this.speed * dt * enemySpeedScale;
         this.textHp.x += this.speed * dt * enemySpeedScale;
@@ -36,7 +36,8 @@ Enemy.prototype.freeResources = function() {
     this.textHp.destroy();
 }
 
-function onClickEnemy(){
+function onClickEnemy() {
     this.hp -= characters[0].damage;
     createDamageText(characters[0].damage, this);
+    //shakeScreen(5);
 }

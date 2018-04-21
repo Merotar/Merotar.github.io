@@ -1,7 +1,7 @@
 [
   {
     "name": "enemy0",
-    "hp" : 5.0,
+    "hp" : 10,
     "sprite" : "enemy0",
     "speed" : 0.1,
     "damage" : 1,
@@ -9,7 +9,7 @@
   },
   {
     "name": "enemy1",
-    "hp" : 10.0,
+    "hp" : 20,
     "sprite" : "enemy0",
     "speed" : 0.15,
     "damage" : 1,
