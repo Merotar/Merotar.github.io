@@ -1,7 +1,7 @@
 class Enemy {
     constructor (config) {
-        this.width = 60;
-        this.height = 120;
+        this.width = config["width"]*gameHeight;
+        this.height = config["height"]*gameHeight;
         this.posY = Math.floor(Math.random()*((enemySpawnYmax - this.height)-enemySpawnYmin+1)+enemySpawnYmin);
         this.posX = this.width;
         this.maxHp = config["hp"];
