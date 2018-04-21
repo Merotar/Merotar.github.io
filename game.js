@@ -8,8 +8,9 @@ var game = new Phaser.Game(targetWidth, targetHeight,
     Phaser.CANVAS, 'Horror Clicker', { preload: preload, create: create , update: update });
 
 //var button;
-var imageCanvas;
+//var imageCanvas;
 var imageLine;
+var imageHome;
 
 var gameWidth = targetWidth; //window.innerWidth * window.devicePixelRatio;
 var gameHeight = targetHeight; //window.innerHeight * window.devicePixelRatio;
@@ -57,42 +58,25 @@ var textFont = "28px Arial";
 var enemyTargetPosX = gameWidth * 0.8;
 var enemySpeedScale = enemyTargetPosX;
 
-var char0, char1, char2;
+var characters = [];
 var enemies = [];
 var enemySpawnTimer;
-var enemySpawnTime = 3;
+var enemySpawnTime = 2;
+var enemySpawnYmin = gameHeight*0.1;
+var enemySpawnYmax = statusCanvasHeight - gameHeight*0.05;
+
+var xpForLevelup = 10;
 
 var characterConfig;
 var enemyConfig;
 
-class Button {
-    constructor(name, posX, posY, width, height, player, mode) {
-        //this.buttonResourcesWidth = buttonResourcesWidth;
-        //this.buttonHeight = buttonResourcesHeight;
-        switch (mode) {
-            case 0:
-                this.button = game.add.button(posX, posY, 'buttonWide', player.levelUp, player, 3, 2, 1, 0);
-                break;
-            case 1:
-                this.button = game.add.button(posX, posY, 'buttonWide', player.useSkill, player, 3, 2, 1, 0);
-                break;
-            case 2:
-                this.button = game.add.button(posX, posY, 'buttonWide', player.increaseXP, player, 3, 2, 1, 0);
-                break;
-            default:
-        }
-        if (this.button != null) {
-            this.button.width = width;
-            this.button.height = height;
-            this.text = game.add.text(posX, posY, name, { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
-            this.text.setTextBounds(0, 0, textButtonWidth, textButtonHeight + textShiftY);
-        }
-
-    }
-}
-
 function spawnEnemy() {
     enemies.push(new Enemy(enemyConfig[0]));
+}
+
+function damageRandomCharacter(damage) {
+    var index = Math.floor(Math.random() * 3);
+    characters[index].hp -= damage;
 }
 
 function preload() {
@@ -101,6 +85,7 @@ function preload() {
     game.load.image("buttonWide", "assets/img/buttonWide.png");
     game.load.image("canvas", "assets/img/canvas.png");
     game.load.image("line", "assets/img/line.png");
+    game.load.image("home", "assets/img/home.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
 
     game.load.json('enemyConfig', 'config/enemyConfig.json');
@@ -116,6 +101,10 @@ function create() {
     characterConfig = game.cache.getJSON('characterConfig');
     enemyConfig = game.cache.getJSON('enemyConfig');
 
+    imageHome = game.add.sprite(enemyTargetPosX, statusCanvasHeight*0.2, 'home');
+    imageHome.width = statusCanvasHeight*0.6;
+    imageHome.height = statusCanvasHeight*0.6;
+
     imageLine = game.add.sprite((gameWidth - imageLineWith) / 2 , statusCanvasHeight - gameHeight * 0.02, 'line');
     imageLine.width = imageLineWith;
     imageLine.height = imageLineHeight;
@@ -123,9 +112,9 @@ function create() {
     textGold = game.add.text(textGoldPosX, textGoldPosY, "0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
     textGold.setTextBounds(0, 0, textGoldWidth, textGoldHeight + textShiftY);
 
-    char0 = new Character("name1", characterConfig[0]);
-    char1 = new Character("name2", characterConfig[1]);
-    char2 = new Character("name3", characterConfig[2]);
+    characters.push(new Character(characterConfig[0]));
+    characters.push(new Character(characterConfig[1]));
+    characters.push(new Character(characterConfig[2]));
 
     enemies.push(new Enemy(enemyConfig[0]));
 
@@ -139,9 +128,9 @@ function create() {
 function update() {
     var dt = game.time.elapsedMS / 1000.;
     textGold.text = globalGold;
-    char0.update(dt);
-    char1.update(dt);
-    char2.update(dt);
+    for (let i = 0; i < 3; i++) {
+        characters[i].update(dt);
+    }
 
     for (let i = 0; i < enemies.length; i++) {
         var tmpEnemy = enemies[i];
@@ -150,6 +139,13 @@ function update() {
             tmpEnemy.freeResources();
             enemies.splice(i, 1);
             delete tmpEnemy;
+        } else {
+            if (tmpEnemy.sprite.x > enemyTargetPosX) {
+                damageRandomCharacter(tmpEnemy.damage);
+                tmpEnemy.freeResources();
+                enemies.splice(i, 1);
+                delete tmpEnemy;
+            }
         }
     }
 }

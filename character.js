@@ -1,11 +1,44 @@
+class Button {
+    constructor(name, posX, posY, width, height, player, mode) {
+        //this.buttonResourcesWidth = buttonResourcesWidth;
+        //this.buttonHeight = buttonResourcesHeight;
+        switch (mode) {
+            case 0:
+                this.button = game.add.button(posX, posY, 'buttonWide', player.levelUp, player, 3, 2, 1, 0);
+                break;
+            case 1:
+                this.button = game.add.button(posX, posY, 'buttonWide', player.useSkill, player, 3, 2, 1, 0);
+                break;
+            case 2:
+                this.button = game.add.button(posX, posY, 'buttonWide', player.increaseXP, player, 3, 2, 1, 0);
+                break;
+            default:
+        }
+        if (this.button != null) {
+            this.button.width = width;
+            this.button.height = height;
+            this.text = game.add.text(posX, posY, name, { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
+            this.text.setTextBounds(0, 0, textButtonWidth, textButtonHeight + textShiftY);
+        }
+
+    }
+}
+
 class Character {
-    constructor(name, config) {
+    constructor(config) {
         this.name = config["name"];
         this.playerNum = config["playerNum"];
+        this.maxHpBase = config["hp"];
+        this.hp = this.maxHp;
         this.xp = 0;
-        this.xpIncrease = 1;
-        this.damage = config["damage"];
-        this.damageTime = config["damageTime"];
+        this.level = 1;
+        this.damageBase = config["damage"];
+        this.damageTimeBase = config["damageTime"];
+        this.xpIncreaseBase = 1;
+        this.maxHp = this.maxHpBase;
+        this.xpIncrease = this.xpIncreaseBase;
+        this.damage = this.damageBase;
+        this.damageTime = this.damageTimeBase;
         this.innerCanvasX = playersCanvasPosX + this.playerNum*playerCanvasWidth + playerCanvasWidth*playerCanvasBorderX/2;
         this.innerCanvasY = playersCanvasPosY  + playerCanvasHeight*playerCanvasBorderY/2;
         this.innerCanvasWidth = playerCanvasWidth * (1-playerCanvasBorderX);
@@ -23,8 +56,10 @@ class Character {
         this.textXp = game.add.text(this.ButtonSmallX, this.getButtonY(0), "XP: 0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textXp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
 
-        this.textBonus = game.add.text(this.ButtonSmallX, this.getButtonY(1), "No Bonus", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
-        this.textBonus.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
+        //this.textBonus = game.add.text(this.ButtonSmallX, this.getButtonY(1), "No Bonus", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
+        //this.textBonus.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
+        this.textHp = game.add.text(this.ButtonSmallX, this.getButtonY(1), "HP: " + Math.round(this.hp), { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
+        this.textHp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
 
         this.portraitCanvasX = this.innerCanvasX + buttonResourcesOffsetX + playerCanvasBorderX*playerCanvasWidth;
         this.portraitCanvasY = this.innerCanvasY + buttonResourcesOffsetY;
@@ -33,8 +68,9 @@ class Character {
         this.portraitCanvas.height = 2 * buttonResourcesHeight + buttonResourcesOffsetY;
 
         this.buttonLevelUp = new Button("Level Up", this.buttonX, this.getButtonY(2) , buttonResourcesWidth, buttonResourcesHeight, this, 0);
+        this.buttonLevelUp.button.alpha = 0.5;
         this.buttonUseAbility = new Button("Use Ability", this.buttonX, this.getButtonY(3) , buttonResourcesWidth, buttonResourcesHeight, this, 1);
-        this.buttonTraining = new Button("Trainging", this.buttonX, this.getButtonY(4) , buttonResourcesWidth, buttonResourcesHeight, this, 2);
+        this.buttonTraining = new Button("Training", this.buttonX, this.getButtonY(4) , buttonResourcesWidth, buttonResourcesHeight, this, 2);
 
         ////
 
@@ -53,6 +89,19 @@ class Character {
             tmpEnemy.hp -= this.damage;
         }
     }
+
+    scaleLevelGain(level) {
+        return level * 0.5;
+    }
+
+    levelUp() {
+        this.level++;
+        this.xp -= xpForLevelup;
+        this.maxHp = this.maxHpBase * this.scaleLevelGain(this.level);
+        //this.xpIncrease = this.xpIncreaseBase * this.scaleLevelGain(this.level);
+        this.damage = this.damageBase * this.scaleLevelGain(this.level);
+        this.damageTime = this.damageTimeBase * this.scaleLevelGain(this.level);
+    }
 }
 
 Character.prototype.increaseXP = function () {
@@ -63,10 +112,13 @@ Character.prototype.useSkill = function () {
 
 }
 
-Character.prototype.levelUp = function () {
-
-}
-
 Character.prototype.update = function () {
     this.textXp.text = "XP: " + this.xp;
+    this.textHp.text = "HP: " + Math.round(this.hp);
+
+    if (this.xp >= xpForLevelup) {
+        this.buttonLevelUp.button.alpha = 1.0;
+    } else {
+        this.buttonLevelUp.button.alpha = 0.5;
+    }
 };

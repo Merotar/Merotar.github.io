@@ -2,10 +2,11 @@ class Enemy {
     constructor (config) {
         this.width = 60;
         this.height = 120;
-        this.posY = statusCanvasHeight - this.height - gameHeight*0.1;
+        this.posY = Math.floor(Math.random()*((enemySpawnYmax - this.height)-enemySpawnYmin+1)+enemySpawnYmin);
         this.posX = this.width;
         this.maxHp = config["hp"];
         this.hp = this.maxHp;
+        this.damage = config["damage"];
         this.speed = config["speed"];
         this.name = config["name"];
 
