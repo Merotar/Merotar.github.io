@@ -103,8 +103,8 @@ function preload() {
     game.load.image("line", "assets/img/line.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
 
-    game.load.json('enemyConfig', 'enemyConfig.json');
-    game.load.json('characterConfig', 'characterConfig.json');
+    game.load.json('enemyConfig', 'config/enemyConfig.json');
+    game.load.json('characterConfig', 'config/characterConfig.json');
 
     console.log("preload finished");
     console.log(game.width, game.height)
