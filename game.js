@@ -1,6 +1,6 @@
 console.log("start");
-var targetWidth = 1600;
-var targetHeight = 900;
+var targetWidth = 1280;
+var targetHeight = 768;
 
 //var game = new Phaser.Game(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio,
 //    Phaser.CANVAS, 'Horror Clicker', { preload: preload, create: create , update: update});
@@ -53,7 +53,8 @@ var textGoldPosY= statusCanvasHeight + gameHeight*0.2 - textGoldHeight;
 var textShiftY = 8;
 var textColor = "#3C1E00";
 var textColorEnemyHp = "#000000";
-var textFont = "28px Arial";
+var fontFixelSize = Math.floor(buttonResourcesHeight / 2)
+var textFont = fontFixelSize + "px Arial";
 
 var enemyTargetPosX = gameWidth * 0.8;
 var enemySpeedScale = enemyTargetPosX;
