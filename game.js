@@ -24,7 +24,7 @@ var textGoldPosX = gameWidth / 12;
 var textGoldPosY= gameHeight*verticalPosFactorGold - textGoldHeight;
 var textShiftY = 8;
 var textColor = "#3C1E00";
-var textFont = "32px Arial";
+var textFont = "28px Arial";
 
 var globalGold = 0;
 var goldIncrease = 1;
@@ -34,21 +34,24 @@ var goldIncrease = 1;
 
 var statusCanvasWidth = gameWidth*0.1;
 var statusCanvasHeight = gameHeight*0.5;
-console.log("line: ", statusCanvasHeight);
 var playersCanvasPosX = statusCanvasWidth;
 var playersCanvasPosY = statusCanvasHeight;
 var playersCanvasWidth = gameWidth - statusCanvasWidth;
 var playersCanvasHeight = gameHeight - statusCanvasHeight;
 var playerCanvasWidth = playersCanvasWidth / 3;
 var playerCanvasHeight = playersCanvasHeight;
+var playerCanvasBorderX = 0.02;
+var playerCanvasBorderY = 0.01;
+var playerCanvasInnerWidth = playerCanvasWidth - 2*playerCanvasBorderX*playerCanvasWidth;
+var playerCanvasInnerHeight = playerCanvasHeight - 2*playerCanvasBorderY*playerCanvasHeight;
 
 var imageLineWith = gameWidth* 0.98;
 var imageLineHeight = gameHeight*0.01;
 
-var buttonResourcesWidth = playerCanvasWidth * 0.8;
-var buttonResourcesOffsetY = playerCanvasHeight * 0.1;
+var buttonResourcesWidth = playerCanvasInnerWidth * 0.85;
+var buttonResourcesOffsetY = playerCanvasInnerHeight * 0.03;
 var buttonResourcesOffsetX = buttonResourcesOffsetY;
-var buttonResourcesHeight =  (playerCanvasHeight - 6*buttonResourcesOffsetY) / 5;
+var buttonResourcesHeight =  (playerCanvasInnerHeight - 6*buttonResourcesOffsetY) / 5;
 var textButtonWidth = buttonResourcesWidth;
 var textButtonHeight = buttonResourcesHeight;
 
@@ -60,13 +63,13 @@ class Button {
         //this.buttonHeight = buttonResourcesHeight;
         switch (mode) {
             case 0:
-                this.button = game.add.button(posX, posY, 'button', player.levelUp, player, 3, 2, 1, 0);
+                this.button = game.add.button(posX, posY, 'buttonWide', player.levelUp, player, 3, 2, 1, 0);
                 break;
             case 1:
-                this.button = game.add.button(posX, posY, 'button', player.useSkill, player, 3, 2, 1, 0);
+                this.button = game.add.button(posX, posY, 'buttonWide', player.useSkill, player, 3, 2, 1, 0);
                 break;
             case 2:
-                this.button = game.add.button(posX, posY, 'button', player.increaseXP, player, 3, 2, 1, 0);
+                this.button = game.add.button(posX, posY, 'buttonWide', player.increaseXP, player, 3, 2, 1, 0);
                 break;
             default:
         }
@@ -86,12 +89,10 @@ class Character {
         this.playerNum = playerNum;
         this.xp = 0;
         this.xpIncrease = 1;
-        this.borderX = 0.1;
-        this.borderY = 0.05;
-        this.innerCanvasX = playersCanvasPosX + playerNum*playerCanvasWidth + playerCanvasWidth*this.borderX/2;
-        this.innerCanvasY = playersCanvasPosY  + playerCanvasHeight*this.borderY/2;
-        this.innerCanvasWidth = playerCanvasWidth * (1-this.borderX);
-        this.innerCanvasHeight = playerCanvasHeight * (1-this.borderY);
+        this.innerCanvasX = playersCanvasPosX + playerNum*playerCanvasWidth + playerCanvasWidth*playerCanvasBorderX/2;
+        this.innerCanvasY = playersCanvasPosY  + playerCanvasHeight*playerCanvasBorderY/2;
+        this.innerCanvasWidth = playerCanvasWidth * (1-playerCanvasBorderX);
+        this.innerCanvasHeight = playerCanvasHeight * (1-playerCanvasBorderY);
         this.imageCanvas = game.add.sprite(this.innerCanvasX, this.innerCanvasY, 'canvas');
         //console.log(playersCanvasPosX + playersCanvasWidth, playersCanvasPosY + playersCanvasHeight);
         this.imageCanvas.width = this.innerCanvasWidth;
@@ -99,7 +100,7 @@ class Character {
 
         this.buttonX = this.innerCanvasX + this.innerCanvasWidth/2 - buttonResourcesWidth/2;
         // TODO: fix border
-        this.ButtonSmallX = this.buttonX + 0.5 * this.innerCanvasWidth;
+        this.ButtonSmallX = this.innerCanvasX + this.innerCanvasWidth/2; // this.buttonX + 0.5 * this.innerCanvasWidth;
         this.buttonSmallWidth = 0.5 * textButtonWidth;
 
         this.textXp = game.add.text(this.ButtonSmallX, this.getButtonY(0), "XP: 0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
@@ -108,7 +109,9 @@ class Character {
         this.textBonus = game.add.text(this.ButtonSmallX, this.getButtonY(1), "No Bonus", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textBonus.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
 
-        this.portraitCanvas = game.add.sprite(this.innerCanvasX + buttonResourcesOffsetX, this.innerCanvasY + buttonResourcesOffsetY, 'canvas');
+        this.portraitCanvasX = this.innerCanvasX + buttonResourcesOffsetX + playerCanvasBorderX*playerCanvasWidth;
+        this.portraitCanvasY = this.innerCanvasY + buttonResourcesOffsetY;
+        this.portraitCanvas = game.add.sprite(this.portraitCanvasX, this.portraitCanvasY, 'canvas');
         this.portraitCanvas.width = 0.5 * buttonResourcesWidth;
         this.portraitCanvas.height = 2 * buttonResourcesHeight + buttonResourcesOffsetY;
 
@@ -139,11 +142,33 @@ Character.prototype.update = function () {
     this.textXp.text = "XP: " + this.xp;
 };
 
+class Enemy {
+    constructor (type) {
+        this.width = 60;
+        this.height = 120;
+        this.posY = statusCanvasHeight - this.height - gameHeight*0.1;
+        this.posX = this.width;
+        this.type = type;
+
+        switch(type) {
+            case 0:
+                this.sprite = game.add.sprite(this.posX, this.posY, 'enemy0');
+                this.sprite.width = this.width;
+                this.sprite.height = this.height;
+                this.sprite.tint = 0xffffff;
+                break;
+            default:
+        }
+    }
+}
+
 function preload() {
     console.log("preload");
     game.load.image("button", "assets/img/button.png");
+    game.load.image("buttonWide", "assets/img/buttonWide.png");
     game.load.image("canvas", "assets/img/canvas.png");
     game.load.image("line", "assets/img/line.png");
+    game.load.image("enemy0", "assets/img/enemy0.png");
     console.log("preload finished");
     console.log(game.width, game.height)
 }
@@ -151,7 +176,7 @@ function preload() {
 function create() {
     game.stage.backgroundColor = '#D4C7BB';
 
-    imageLine = game.add.sprite((gameWidth - imageLineWith) / 2 , gameHeight*0.5, 'line');
+    imageLine = game.add.sprite((gameWidth - imageLineWith) / 2 , statusCanvasHeight - gameHeight * 0.02, 'line');
     imageLine.width = imageLineWith;
     imageLine.height = imageLineHeight;
 
@@ -161,6 +186,8 @@ function create() {
     char0 = new Character("name1", 0);
     char1 = new Character("name2", 1);
     char2 = new Character("name3", 2);
+
+    enemy = new Enemy(0);
 
     console.log("create");
 }
