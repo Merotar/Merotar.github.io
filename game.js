@@ -62,6 +62,9 @@ var enemies = [];
 var enemySpawnTimer;
 var enemySpawnTime = 3;
 
+var characterConfig;
+var enemyConfig;
+
 class Button {
     constructor(name, posX, posY, width, height, player, mode) {
         //this.buttonResourcesWidth = buttonResourcesWidth;
@@ -88,149 +91,6 @@ class Button {
     }
 }
 
-var playersConfig = [
-    {
-        "playerNum" : 0,
-        "damage" : 0.5,
-        "damageTime" : 1,
-        "name" : "Claire"
-    },
-    {
-        "playerNum" : 1,
-        "damage" : 0.1,
-        "damageTime" : 0.2,
-        "name" : "Jessie"
-    },
-    {
-        "playerNum" : 2,
-        "damage" : 1,
-        "damageTime" : 2,
-        "name" : "Eleonore"
-    }
-];
-
-class Character {
-    constructor(name, config) {
-        this.name = config["name"];
-        this.playerNum = config["playerNum"];
-        this.xp = 0;
-        this.xpIncrease = 1;
-        this.damage = config["damage"];
-        this.damageTime = config["damageTime"];
-        this.innerCanvasX = playersCanvasPosX + this.playerNum*playerCanvasWidth + playerCanvasWidth*playerCanvasBorderX/2;
-        this.innerCanvasY = playersCanvasPosY  + playerCanvasHeight*playerCanvasBorderY/2;
-        this.innerCanvasWidth = playerCanvasWidth * (1-playerCanvasBorderX);
-        this.innerCanvasHeight = playerCanvasHeight * (1-playerCanvasBorderY);
-        this.imageCanvas = game.add.sprite(this.innerCanvasX, this.innerCanvasY, 'canvas');
-        //console.log(playersCanvasPosX + playersCanvasWidth, playersCanvasPosY + playersCanvasHeight);
-        this.imageCanvas.width = this.innerCanvasWidth;
-        this.imageCanvas.height = this.innerCanvasHeight;
-
-        this.buttonX = this.innerCanvasX + this.innerCanvasWidth/2 - buttonResourcesWidth/2;
-        // TODO: fix border
-        this.ButtonSmallX = this.innerCanvasX + this.innerCanvasWidth/2; // this.buttonX + 0.5 * this.innerCanvasWidth;
-        this.buttonSmallWidth = 0.5 * textButtonWidth;
-
-        this.textXp = game.add.text(this.ButtonSmallX, this.getButtonY(0), "XP: 0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
-        this.textXp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
-
-        this.textBonus = game.add.text(this.ButtonSmallX, this.getButtonY(1), "No Bonus", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
-        this.textBonus.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
-
-        this.portraitCanvasX = this.innerCanvasX + buttonResourcesOffsetX + playerCanvasBorderX*playerCanvasWidth;
-        this.portraitCanvasY = this.innerCanvasY + buttonResourcesOffsetY;
-        this.portraitCanvas = game.add.sprite(this.portraitCanvasX, this.portraitCanvasY, 'canvas');
-        this.portraitCanvas.width = 0.5 * buttonResourcesWidth;
-        this.portraitCanvas.height = 2 * buttonResourcesHeight + buttonResourcesOffsetY;
-
-        this.buttonLevelUp = new Button("Level Up", this.buttonX, this.getButtonY(2) , buttonResourcesWidth, buttonResourcesHeight, this, 0);
-        this.buttonUseAbility = new Button("Use Ability", this.buttonX, this.getButtonY(3) , buttonResourcesWidth, buttonResourcesHeight, this, 1);
-        this.buttonTraining = new Button("Trainging", this.buttonX, this.getButtonY(4) , buttonResourcesWidth, buttonResourcesHeight, this, 2);
-
-        ////
-
-        this.damageTimer = game.time.create(false);
-        this.damageTimer.loop(this.damageTime * 1000, this.damageEnemies, this);
-        this.damageTimer.start();
-    }
-
-    getButtonY(number) {
-        return this.innerCanvasY + buttonResourcesOffsetY + number*(buttonResourcesOffsetY + buttonResourcesHeight);
-    }
-
-    damageEnemies() {
-        for (let i = 0; i < enemies.length; i++) {
-            var tmpEnemy = enemies[i];
-            tmpEnemy.hp -= this.damage;
-        }
-    }
-}
-
-Character.prototype.increaseXP = function () {
-    this.xp += this.xpIncrease;
-}
-
-Character.prototype.useSkill = function () {
-
-}
-
-Character.prototype.levelUp = function () {
-
-}
-
-Character.prototype.update = function () {
-    this.textXp.text = "XP: " + this.xp;
-};
-
-enemyConfig = [
-    {
-        "name": "enemy0",
-        "hp" : 5.0,
-        "sprite" : "enemy0",
-        "speed" : 0.05
-    },
-    {
-        "name": "enemy1",
-        "hp" : 10.0,
-        "sprite" : "enemy0",
-        "speed" : 0.1
-    }
-];
-
-class Enemy {
-    constructor (config) {
-        this.width = 60;
-        this.height = 120;
-        this.posY = statusCanvasHeight - this.height - gameHeight*0.1;
-        this.posX = this.width;
-        this.maxHp = config["hp"];
-        this.hp = this.maxHp;
-        this.speed = config["speed"];
-        this.name = config["name"];
-
-        this.sprite = game.add.sprite(this.posX, this.posY, config["name"]);
-        this.sprite.width = this.width;
-        this.sprite.height = this.height;
-        this.sprite.tint = 0xffffff;
-
-        this.textHp = game.add.text(this.posX, this.posY - this.height*0.1, this.hp, { font: textFont, fill: textColorEnemyHp, boundsAlignH: "center", boundsAlignV: "middle" });
-        this.textHp.setTextBounds(0, 0, this.width, 0);
-    }
-}
-
-Enemy.prototype.update = function (dt) {
-    this.textHp.text = this.hp.toFixed(1);
-    if(this.sprite.x < enemyTargetPosX) {
-        this.sprite.x += this.speed * dt * enemySpeedScale;
-        this.textHp.x += this.speed * dt * enemySpeedScale;
-    }
-};
-
-Enemy.prototype.freeResources = function() {
-    this.sprite.destroy();
-    this.textHp.destroy();
-}
-
 function spawnEnemy() {
     enemies.push(new Enemy(enemyConfig[0]));
 }
@@ -242,12 +102,19 @@ function preload() {
     game.load.image("canvas", "assets/img/canvas.png");
     game.load.image("line", "assets/img/line.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
+
+    game.load.json('enemyConfig', 'enemyConfig.json');
+    game.load.json('characterConfig', 'characterConfig.json');
+
     console.log("preload finished");
     console.log(game.width, game.height)
 }
 
 function create() {
     game.stage.backgroundColor = '#D4C7BB';
+
+    characterConfig = game.cache.getJSON('characterConfig');
+    enemyConfig = game.cache.getJSON('enemyConfig');
 
     imageLine = game.add.sprite((gameWidth - imageLineWith) / 2 , statusCanvasHeight - gameHeight * 0.02, 'line');
     imageLine.width = imageLineWith;
@@ -256,9 +123,9 @@ function create() {
     textGold = game.add.text(textGoldPosX, textGoldPosY, "0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
     textGold.setTextBounds(0, 0, textGoldWidth, textGoldHeight + textShiftY);
 
-    char0 = new Character("name1", playersConfig[0]);
-    char1 = new Character("name2", playersConfig[1]);
-    char2 = new Character("name3", playersConfig[2]);
+    char0 = new Character("name1", characterConfig[0]);
+    char1 = new Character("name2", characterConfig[1]);
+    char2 = new Character("name3", characterConfig[2]);
 
     enemies.push(new Enemy(enemyConfig[0]));
 

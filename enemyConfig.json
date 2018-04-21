@@ -1,0 +1,14 @@
+[
+  {
+    "name": "enemy0",
+    "hp" : 5.0,
+    "sprite" : "enemy0",
+    "speed" : 0.05
+  },
+  {
+    "name": "enemy1",
+    "hp" : 10.0,
+    "sprite" : "enemy0",
+    "speed" : 0.1
+  }
+]
