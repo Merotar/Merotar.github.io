@@ -95,9 +95,11 @@ var backgroundInterpolationFrequency = 0.2;
 var backgroundInterpolationTargetColor = 0xcccccc;
 var characterConfig;
 var enemyConfig;
+var numEnemyTypes;
 
 function spawnEnemy() {
-    enemies.push(new Enemy(enemyConfig[0]));
+    var enemyIndex = Math.floor(Math.random() * numEnemyTypes);
+    enemies.push(new Enemy(enemyConfig[enemyIndex]));
 }
 
 function damageRandomCharacter(damage) {
@@ -200,6 +202,7 @@ function create() {
 
     characterConfig = game.cache.getJSON('characterConfig');
     enemyConfig = game.cache.getJSON('enemyConfig');
+    numEnemyTypes = enemyConfig.length;
 
     imageBackground = game.add.sprite(0, 0, 'background');
     imageBackground.width = gameWidth;

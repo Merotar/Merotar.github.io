@@ -11,7 +11,7 @@ class Enemy {
         this.xp = config["xp"];
         this.name = config["name"];
 
-        this.sprite = game.add.sprite(this.posX, this.posY, config["name"]);
+        this.sprite = game.add.sprite(this.posX, this.posY, config["sprite"]);
         this.sprite.width = this.width;
         this.sprite.height = this.height;
         this.sprite.tint = 0xffffff;

@@ -6,17 +6,17 @@
     "speed" : 0.1,
     "damage" : 1,
     "xp" : 1,
-    "width" : 0.15,
-    "height" : 0.15
+    "width" : 0.1,
+    "height" : 0.1
   },
   {
     "name": "enemy1",
     "hp" : 20,
     "sprite" : "enemy0",
-    "speed" : 0.15,
-    "damage" : 1,
+    "speed" : 0.05,
+    "damage" : 2,
     "xp" : 2,
-    "width" : 0.1,
-    "height" : 0.1
+    "width" : 0.15,
+    "height" : 0.15
   }
 ]
