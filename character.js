@@ -30,7 +30,7 @@ class Character {
         this.playerNum = config["playerNum"];
         this.maxHpBase = config["hp"];
         this.xp = 0;
-        this.level = 1;
+        this.level = 0;
         this.damageBase = config["damage"];
         this.damageTimeBase = config["damageTime"];
         this.xpIncreaseBase = 1;
@@ -84,14 +84,36 @@ class Character {
     }
 
     damageEnemies() {
-        for (let i = 0; i < enemies.length; i++) {
+        /*for (let i = 0; i < enemies.length; i++) {
             var tmpEnemy = enemies[i];
             tmpEnemy.hp -= this.damage;
+
+            var textDamage = game.add.text( tmpEnemy.sprite.x,  tmpEnemy.sprite.y - tmpEnemy.height / 2, "-" + this.damage, { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
+            textDamage.setTextBounds(0, 0, tmpEnemy.width, tmpEnemy.height);//damageSizeX, damageSizeY);
+            textDamage.lifespan = 1000;
+            textDamageList.push(textDamage);
+        }*/
+
+        // damage all enemies
+        if (this.playerNum == 1) {
+            for (let i = 0; i < enemies.length; i++) {
+                var tmpEnemy = enemies[i];
+                tmpEnemy.hp -= this.damage;
+                createDamageText(this.damage, tmpEnemy);
+            }
+        }
+
+        if (this.playerNum == 2) {
+            if (enemies.length > 0) {
+                var index = Math.floor(Math.random() * enemies.length);
+                enemies[index].hp -= this.damage;
+                createDamageText(this.damage, enemies[index]);
+            }
         }
     }
 
     scaleLevelGain(level) {
-        return level * 0.5;
+        return 1+level * 0.5;
     }
 
     levelUp() {
@@ -122,5 +144,10 @@ Character.prototype.update = function () {
         this.buttonLevelUp.button.alpha = 1.0;
     } else {
         this.buttonLevelUp.button.alpha = 0.5;
+    }
+
+    for (let i = 0; i < textDamageList.length; i++) {
+        var tmpText = textDamageList[i];
+        tmpText.y -= damageTextSpeed * gameHeight;
     }
 };

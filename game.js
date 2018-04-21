@@ -11,6 +11,8 @@ var game = new Phaser.Game(targetWidth, targetHeight,
 //var imageCanvas;
 var imageLine;
 var imageHome;
+var imageBackground;
+var imageBackground2;
 
 var gameWidth = targetWidth; //window.innerWidth * window.devicePixelRatio;
 var gameHeight = targetHeight; //window.innerHeight * window.devicePixelRatio;
@@ -54,8 +56,14 @@ var textGoldPosY= statusCanvasHeight + gameHeight*0.2 - textGoldHeight;
 var textShiftY = 8;
 var textColor = "#3C1E00";
 var textColorEnemyHp = "#000000";
+var damageColor = "#990000";
 var fontFixelSize = Math.floor(buttonResourcesHeight / 2)
 var textFont = fontFixelSize + "px Arial";
+
+var damageSizeX = gameWidth * 0.01;
+var damageSizeY = gameHeight * 0.01;
+var textDamageList= [];
+var damageTextSpeed = 0.001;
 
 var enemyTargetPosX = gameWidth * 0.8;
 var enemySpeedScale = enemyTargetPosX;
@@ -66,6 +74,7 @@ var enemySpawnTimer;
 var enemySpawnTime = 2;
 var enemySpawnYmin = gameHeight*0.1;
 var enemySpawnYmax = statusCanvasHeight - gameHeight*0.05;
+var backgroundSwitchTimer;
 
 var xpForLevelup = 10;
 
@@ -90,12 +99,25 @@ function addXpRandomCharacter(xp) {
     characters[index].xp += xp;
 }
 
+function createDamageText(dmg, tmpEnemy) {
+    var textDamage = game.add.text( tmpEnemy.sprite.x,  tmpEnemy.sprite.y - tmpEnemy.height / 2, "-" + dmg, { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
+    textDamage.setTextBounds(0, 0, tmpEnemy.width, tmpEnemy.height);//damageSizeX, damageSizeY);
+    textDamage.lifespan = 1000;
+    textDamageList.push(textDamage);
+}
+
+function switchBackgrounds() {
+    imageBackground.visible = !imageBackground.visible;
+    imageBackground2.visible = !imageBackground2.visible;
+}
+
 function preload() {
     console.log("preload");
     game.load.image("button", "assets/img/button.png");
     game.load.image("buttonWide", "assets/img/buttonWide.png");
     game.load.image("canvas", "assets/img/canvas.png");
     game.load.image("background", "assets/img/background.png");
+    game.load.image("background2", "assets/img/background2.png");
     game.load.image("character0", "assets/img/character0.png");
     game.load.image("character1", "assets/img/character0.png");
     game.load.image("character2", "assets/img/character0.png");
@@ -121,6 +143,17 @@ function create() {
     imageBackground = game.add.sprite(0, 0, 'background');
     imageBackground.width = gameWidth;
     imageBackground.height = gameHeight;
+    imageBackground.visible = true;
+
+    /*imageBackground2 = game.add.sprite(0, 0, 'background2');
+    imageBackground2.width = gameWidth;
+    imageBackground2.height = gameHeight;
+    imageBackground2.visible = false;
+
+    backgroundSwitchTimer = game.time.create(false);
+    backgroundSwitchTimer.loop(500, switchBackgrounds, this);
+    backgroundSwitchTimer.start();*/
+
 
     imageHome = game.add.sprite(enemyTargetPosX, statusCanvasHeight*0.2, 'home');
     imageHome.width = statusCanvasHeight*0.6;
@@ -153,7 +186,7 @@ function update() {
 
     var colorStep = backgroundInterpolationSteps*0.5*(Math.cos(2*Math.PI*game.time.totalElapsedSeconds()*backgroundInterpolationFrequency) + 1);
     var color = Phaser.Color.interpolateColor(backgroundInterpolationTargetColor, 0xffffff, backgroundInterpolationSteps, colorStep, 1.0);
-    console.log("totalElapsedSeconds:", colorStep);
+    //console.log("totalElapsedSeconds:", colorStep);
     imageBackground.tint = color;
 
     for (let i = 0; i < 3; i++) {
