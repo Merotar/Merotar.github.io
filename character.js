@@ -29,13 +29,13 @@ class Character {
         this.name = config["name"];
         this.playerNum = config["playerNum"];
         this.maxHpBase = config["hp"];
-        this.hp = this.maxHp;
         this.xp = 0;
         this.level = 1;
         this.damageBase = config["damage"];
         this.damageTimeBase = config["damageTime"];
         this.xpIncreaseBase = 1;
         this.maxHp = this.maxHpBase;
+        this.hp = this.maxHp;
         this.xpIncrease = this.xpIncreaseBase;
         this.damage = this.damageBase;
         this.damageTime = this.damageTimeBase;
