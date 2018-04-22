@@ -59,7 +59,7 @@ var textColorEnemyHp = "#000000";
 var damageColor = "#990000";
 var fontFixelSize = Math.floor(buttonResourcesHeight / 2)
 var textFont = fontFixelSize + "px Gamja Flower";
-var gameOverTextFont = 3*fontFixelSize + "px Gamja Flower";
+var gameOverTextFont = 2*fontFixelSize + "px Gamja Flower";
 
 var damageSizeX = gameWidth * 0.01;
 var damageSizeY = gameHeight * 0.01;
@@ -239,8 +239,9 @@ var gameover = {
         timeEnd = d.getTime();
         var timeSurvived = Math.round((timeEnd - timeStart) / 1000);
 
-        var tmpText = "Game Over\n" +
-            "You survived " + timeSurvived + " seconds\n" +
+        var tmpText = "The nightmares took over the cabin\n" +
+            "to live there in peace until the end of time\n\n" +
+            "You survived " + timeSurvived + " seconds\n\n" +
             "Refresh the page to play again";
         var width = gameWidth * 0.5;
         var height = gameHeight * 0.5;

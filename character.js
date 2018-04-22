@@ -128,23 +128,13 @@ class Character {
 
     drawAttackLine(tmpEnemy) {
         if (tmpEnemy != null) {
-            var curve = drawCurve(this.innerCanvasX + this.innerCanvasWidth / 2, this.innerCanvasY, tmpEnemy.sprite.centerX, tmpEnemy.sprite.centerY);
+            var curve = drawCurve(this.imageCanvas.x + this.innerCanvasWidth / 2, this.imageCanvas.y, tmpEnemy.sprite.centerX, tmpEnemy.sprite.centerY);
             curve.lifespan = attackLineDuration;
             attackLineList.push(curve);
         }
     }
 
     damageEnemies() {
-        /*for (let i = 0; i < enemies.length; i++) {
-            var tmpEnemy = enemies[i];
-            tmpEnemy.hp -= this.damage;
-
-            var textDamage = game.add.text( tmpEnemy.sprite.x,  tmpEnemy.sprite.y - tmpEnemy.height / 2, "-" + this.damage, { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
-            textDamage.setTextBounds(0, 0, tmpEnemy.width, tmpEnemy.height);//damageSizeX, damageSizeY);
-            textDamage.lifespan = 1000;
-            textDamageList.push(textDamage);
-        }*/
-
         if (this.alive) {
             // damage all enemies
             if (this.playerNum == 1) {
@@ -152,7 +142,6 @@ class Character {
                     var tmpEnemy = enemies[i];
                     tmpEnemy.hp -= this.damage;
                     createDamageText(this.damage, tmpEnemy);
-
                     this.drawAttackLine(tmpEnemy);
                 }
             }
@@ -162,7 +151,7 @@ class Character {
                     var index = Math.floor(Math.random() * enemies.length);
                     enemies[index].hp -= this.damage;
                     createDamageText(this.damage, enemies[index]);
-                    this.drawAttackLine(tmpEnemy);
+                    this.drawAttackLine(enemies[index]);
                 }
             }
         }
@@ -240,6 +229,8 @@ class Character {
     }
 
     death(){
+        this.hp = 0;
+        this.textHp.text = "HP: " + (this.hp).toFixed(0);
         this.buttonLevelUp.button.tint = 0xaaaaaa;
         this.buttonTraining.button.tint = 0xaaaaaa;
         this.buttonUseAbility.button.tint = 0xaaaaaa;
@@ -247,7 +238,7 @@ class Character {
         this.buttonLevelUp.text.alpha = 0.5;
         this.buttonTraining.text.alpha = 0.5;
         this.buttonUseAbility.text.alpha = 0.5;
-        this.portraitCanvas.alpha = 0.5;
+        this.imageCanvas.alpha = 0.5;
         this.characterLevelImage.alpha = 0.5;
         this.characterLevelText.alpha = 0.5;
         this.textHp.alpha = 0.5;
