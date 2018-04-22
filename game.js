@@ -262,6 +262,12 @@ function scareRandomCharacter() {
     }
 }
 
+var WebFontConfig = {
+    google: {
+        families: [font]
+    }
+};
+
 var welcome = {
     preload: function() {
         this.game.load.script(
