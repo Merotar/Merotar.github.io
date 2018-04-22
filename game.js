@@ -116,7 +116,7 @@ var moneyScale = 1.0;
 
 var averageLifeSpans = [];
 var numAverageLifeSpans = 3;
-var averageLifeSpanIncreaseFactor = 4;
+var averageLifeSpanHpIncreaseFactor = 5;
 var averageLifeSpanXpIncreaseFactor = 2;
 var averageLifeSpanMoneyIncreaseFactor = 1.5;
 var maxAverage = 0.5;
@@ -139,8 +139,9 @@ var playMusic = true;
 var enemyDamagedSound;
 
 var timeSinceLastScare = 0;
-var timeToNextScareBase = 2;
-var timeToNextScareVariationBase = 2;
+var timeToNextScareBase = 15;
+var timeToNextScareVariationBase = 5;
+var isFirstScare = true;
 var timeToNextScare = timeToNextScareBase;
 
 var buyButtonDmg;
@@ -280,7 +281,7 @@ function drawCurve(startX, startY, endX, endY) {
 }
 
 function scaleEnemies(averageLifeSpan) {
-    var multHpScale = -1 * (averageLifeSpan - maxAverage) * averageLifeSpanIncreaseFactor;
+    var multHpScale = -1 * (averageLifeSpan - maxAverage) * averageLifeSpanHpIncreaseFactor;
     var multXpScale =  -1 * (averageLifeSpan - maxAverage) * averageLifeSpanXpIncreaseFactor;
     var multMoneyScale =  -1 * (averageLifeSpan - maxAverage) * averageLifeSpanMoneyIncreaseFactor;
     if (multHpScale < 0) {
@@ -299,12 +300,18 @@ function scaleEnemies(averageLifeSpan) {
 
 function scareRandomCharacter() {
     var index = Math.floor(Math.random() * 2) + 1;
+    var enemyType = Math.floor(Math.random() * 2);
+    if (isFirstScare) {
+        enemyType = 0;
+        isFirstScare = false;
+    }
+
     var characterScared = false;
     for (let i = 0; i < 3; i++) {
         if (characters[i].scareEnemy0.visible ||characters[i].scareEnemy1.visible) characterScared = true;
     }
     if (!characterScared) {
-        characters[index].scare();
+        characters[index].scare(enemyType);
     }
 }
 
@@ -408,7 +415,7 @@ function gamePreload() {
     game.load.image("enemy1", "assets/img/enemy1.png");
     game.load.image("scareEnemy0", "assets/img/scareEnemy.png");
     game.load.image("scareEnemy1", "assets/img/scareEnemy1.png");
-    game.load.image("wound", "assets/img/character0.png");
+    game.load.image("wound", "assets/img/wound.png");
     game.load.image("money", "assets/img/money.png");
     game.load.image("buyButton", "assets/img/buyButton.png");
 
@@ -520,7 +527,7 @@ function gameCreate() {
     var offsetBuyY = 0.26 * statusCanvasHeight;
     buyBottonPosY = buyBottonPosY + offsetBuyY;
     buyButtonHealth = game.add.button(buyBottonPosX, buyBottonPosY, 'buyButton', function(){
-        if (playerMoney >= costDmg) {
+        if (playerMoney >= costHealth) {
             playerMoney -= costHealth;
             increaseCosts(0.8);
             for (let i = 0; i < 3; i++) {

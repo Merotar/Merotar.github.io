@@ -172,15 +172,21 @@ class Character {
         this.scareEnemy0MaxHp = 20;
         this.scareEnemy0Hp = this.scareEnemy0MaxHp;
 
-        this.scareEnemy1 = game.add.image(this.innerCanvasX - 0.11 * this.innerCanvasWidth,
-            this.innerCanvasY - 0.85 * this.innerCanvasHeight, "scareEnemy1");
-        this.scareEnemy1.width = 1.22 * this.innerCanvasWidth;
-        this.scareEnemy1.height = 1.22 * this.innerCanvasHeight;
+        var tmpX = this.innerCanvasX - 0.11 * this.innerCanvasWidth;
+        var tmpY = this.innerCanvasY - 0.2 * this.innerCanvasHeight;
+        var tmpWidth = 1.22 * this.innerCanvasWidth;
+        var tmpHeight = 1.22 * this.innerCanvasHeight;
+        this.scareEnemy1 = game.add.image(tmpX, tmpY, "scareEnemy1");
+        this.scareEnemy1.width = tmpWidth;
+        this.scareEnemy1.height = tmpHeight;
         this.scareEnemy1.visible = false;
         this.scareEnemy1WoundMaxHp = 3;
         this.wounds = [
-            new Wound(100, 100, 50, 3),
-            new Wound(200, 200, 50, 3)
+            new Wound(tmpX + 0.1*tmpWidth, tmpY + 0.1*tmpHeight, 50, 3),
+            new Wound(tmpX + 0.05*tmpWidth, tmpY + 0.42*tmpHeight, 50, 3),
+            new Wound(tmpX + 0.06*tmpWidth, tmpY + 0.8*tmpHeight, 50, 3),
+            new Wound(tmpX + 0.65*tmpWidth, tmpY + 0.2*tmpHeight, 50, 3),
+            new Wound(tmpX + 0.4*tmpWidth, tmpY + 0.8*tmpHeight, 50, 3)
         ];
     }
 
@@ -424,6 +430,17 @@ Character.prototype.update = function () {
     if (this.active == false && this.currentScareEnemyNum == 1) {
         if (this.updateWounds() <= 0) {
             this.unscare();
+        }
+    }
+
+    if (this.scareEnemy0.visible) game.world.bringToTop(this.scareEnemy0);
+    if (this.scareEnemy1.visible) {
+        game.world.bringToTop(this.scareEnemy0);
+
+        for (let i = 0; i < this.wounds; i++) {
+            if (this.wounds[i].visible) {
+                game.world.bringToTop(this.wounds[i]);
+            }
         }
     }
 
