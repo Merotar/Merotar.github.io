@@ -47,6 +47,7 @@ Enemy.prototype.freeResources = function() {
 function onClickEnemy() {
     if (characters[0].alive) {
         enemyDamaged = true;
+        shakeSprite(this.sprite, 1, 20);
         this.hp -= characters[0].damage;
         createDamageText(characters[0].damage, this);
         //shakeScreen(5);

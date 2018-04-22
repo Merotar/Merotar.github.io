@@ -125,7 +125,15 @@ var explosionSound;
 var hurrySound;
 var slowSound;
 
+var playSound = true;
+var playMusic = false;
+
 var enemyDamaged;
+
+var timeSinceLastScare = 0;
+var timeToNextScareBase = 15;
+var timeToNextScareVariationBase = 5;
+var timeToNextScare = timeToNextScareBase;
 
 function spawnEnemy() {
     var enemyIndex = Math.floor(Math.random() * numEnemyTypes);
@@ -173,6 +181,20 @@ function shakeScreen(magnitude, duration) {
     game.time.events.add(duration, resetWorldBounds, this);
 }
 
+function shakeSprite(theSprite, magnitude, duration) {
+    var rndX = (2*Math.random()-1) * magnitude;
+    var rndY = (2*Math.random()-2) * magnitude;
+    var oldX = theSprite.x;
+    var oldY = theSprite.y;
+    theSprite.x += rndX;
+    theSprite.y += rndY;
+
+    game.time.events.add(duration, function() {
+        theSprite.x = oldX;
+        theSprite.y = oldY;
+    }, this);
+}
+
 function resetWorldBounds() {
     game.world.setBounds(0, 0, game.width, game.height);
 }
@@ -181,7 +203,7 @@ function bloodExplosion(theEnemy) {
     var bloodEmitter = game.add.emitter(theEnemy.sprite.x + theEnemy.sprite.width/2, theEnemy.sprite.y + theEnemy.sprite.height/2, 20);
 
     bloodEmitter.makeParticles('blood0');
-    bloodEmitter.gravity = 200
+    bloodEmitter.gravity = 200;
     bloodEmitter.minRotation = 0;
     bloodEmitter.maxRotation = 0;
     bloodEmitter.minParticleScale = 0.5;
@@ -224,6 +246,17 @@ function scaleEnemies(averageLifeSpan) {
     xpScale += multXpScale;
     //enemyDmgScale
     //enemySpeedScale
+}
+
+function scareRandomCharacter() {
+    var index = Math.floor(Math.random() * 2) + 1;
+    var characterScared = false;
+    for (let i = 0; i < 3; i++) {
+        if (characters[i].scareEnemy.visible) characterScared = true;
+    }
+    if (!characterScared) {
+        characters[index].scare();
+    }
 }
 
 var welcome = {
@@ -314,6 +347,7 @@ function gamePreload() {
     game.load.image("home", "assets/img/home.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
     game.load.image("enemy1", "assets/img/enemy1.png");
+    game.load.image("scareEnemy", "assets/img/scareEnemy.png");
 
     game.load.json('enemyConfig', 'config/enemyConfig.json');
     game.load.json('characterConfig', 'config/characterConfig.json');
@@ -339,12 +373,12 @@ function gameCreate() {
     backgroundMusic = game.add.audio('music1');
     backgroundMusic.loop = true;
     backgroundMusic.volume = 0.2;
-    backgroundMusic.play();
+    if (playMusic) backgroundMusic.play();
 
     windSound = game.add.audio('wind');
     windSound.loop = true;
     windSound.volume = 0.5;
-    windSound.play();
+    if (playMusic) windSound.play();
 
     hitSound = game.add.audio('hit');
     hitSound.volume = 0.1;
@@ -479,6 +513,13 @@ function gameUpdate() {
     if (enemyDamaged) {
         hitSound.play();
         enemyDamaged = false;
+    }
+
+    timeSinceLastScare += dt;
+    if (timeSinceLastScare >= timeToNextScare) {
+        scareRandomCharacter();
+        timeSinceLastScare = 0;
+        timeToNextScare = timeToNextScareBase + Math.random()*timeToNextScareVariationBase;
     }
 }
 

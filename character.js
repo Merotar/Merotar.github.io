@@ -38,6 +38,7 @@ class Character {
         this.skillReloadTimeBase = config["skillReloadTime"];
         this.skillText = config["skillText"];
         this.alive = true;
+        this.active = true;
         this.xpIncreaseBase = 1;
         this.maxHp = this.maxHpBase;
         this.hp = this.maxHp;
@@ -129,6 +130,16 @@ class Character {
             }
         }, this);
         this.skillReloadTimer.start();
+
+        this.scareEnemy = game.add.image(this.innerCanvasX - 0.11 * this.innerCanvasWidth,
+            this.innerCanvasY - 0.85 * this.innerCanvasHeight, "scareEnemy");
+        this.scareEnemy.width = 1.22 * this.innerCanvasWidth;
+        this.scareEnemy.height = 1.22 * this.innerCanvasHeight;
+        this.scareEnemy.visible = false;
+        this.scareEnemy.inputEnabled = false;
+        this.scareEnemy.events.onInputDown.add(onClickScareEnemy, this);
+        this.scareEnemyMaxHp = 10;
+        this.scareEnemyHp = this.scareEnemyMaxHp;
     }
 
     getButtonY(number) {
@@ -144,7 +155,7 @@ class Character {
     }
 
     damageEnemies() {
-        if (this.alive) {
+        if (this.alive && this.active) {
             if (enemies.length > 0 && this.playerNum != 0) {
                 enemyDamaged = true;
             }
@@ -174,7 +185,9 @@ class Character {
     }
 
     getNewXpForLevelUp(newLevel) {
-        return this.xpForLevelupBase * Math.pow(xpNeededBase, newLevel);
+        if (this.alive && this.active) {
+            return this.xpForLevelupBase * Math.pow(xpNeededBase, newLevel);
+        }
     }
 
     levelUp() {
@@ -192,20 +205,22 @@ class Character {
     }
 
     useSkill() {
-        if (this.currentSkillTime >= this.skillReloadTime){
-            this.currentSkillTime = 0;
+        if (this.alive && this.active) {
+            if (this.currentSkillTime >= this.skillReloadTime) {
+                this.currentSkillTime = 0;
 
-            switch (this.playerNum) {
-                case 0:
-                    this.skillDamageAllEnemies();
-                    break;
-                case 1:
-                    this.skillSlowEnemies();
-                    break;
-                case 2:
-                    this.skillIncreaseAttachSpeed();
-                    break;
-                default:
+                switch (this.playerNum) {
+                    case 0:
+                        this.skillDamageAllEnemies();
+                        break;
+                    case 1:
+                        this.skillSlowEnemies();
+                        break;
+                    case 2:
+                        this.skillIncreaseAttachSpeed();
+                        break;
+                    default:
+                }
             }
         }
     }
@@ -263,8 +278,51 @@ class Character {
     }
 }
 
+function onClickScareEnemy() {
+    shakeSprite(this.scareEnemy, 3, 20);
+    this.scareEnemyHp--;
+    var textDamage = game.add.text( this.scareEnemy.x,  this.scareEnemy.y - this.scareEnemy.height / 2, "-1", { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
+    textDamage.setTextBounds(0, 0, this.scareEnemy.width, this.scareEnemy.height);//damageSizeX, damageSizeY);
+    textDamage.lifespan = 1000;
+    textDamageList.push(textDamage);
+
+    if (this.scareEnemyHp <= 0) {
+        this.unscare();
+        timeSinceLastScare = 0;
+    }
+}
+
 Character.prototype.increaseXP = function () {
-    this.xp += this.xpIncrease * xpScale;
+    if (this.alive && this.active) {
+        this.xp += this.xpIncrease * xpScale;
+    }
+}
+
+Character.prototype.scare = function () {
+    this.scareEnemy.visible = true;
+    this.scareEnemy.inputEnabled = true;
+    this.scareEnemyHp = this.scareEnemyMaxHp;
+    this.active = false;
+
+    this.buttonLevelUp.button.tint = 0xaaaaaa;
+    this.buttonTraining.button.tint = 0xaaaaaa;
+    this.buttonUseAbility.button.tint = 0xaaaaaa;
+    this.buttonLevelUp.text.alpha = 0.5;
+    this.buttonTraining.text.alpha = 0.5;
+    this.buttonUseAbility.text.alpha = 0.5;
+}
+
+Character.prototype.unscare = function () {
+    this.scareEnemy.visible = false;
+    this.scareEnemy.inputEnabled = false;
+    this.active = true;
+
+    this.buttonLevelUp.button.tint = 0x000000;
+    this.buttonTraining.button.tint = 0x000000;
+    this.buttonUseAbility.button.tint = 0x000000;
+    this.buttonLevelUp.text.alpha = 1;
+    this.buttonTraining.text.alpha = 1;
+    this.buttonUseAbility.text.alpha = 1;
 }
 
 Character.prototype.update = function () {
@@ -273,7 +331,7 @@ Character.prototype.update = function () {
         this.alive = false;
     }
 
-    if (this.alive) {
+    if (this.alive && this.active) {
         this.textXp.text = "XP: " + (this.xp).toFixed(0) + "/" + (this.xpForLevelup).toFixed(0);
         this.textHp.text = "HP: " + (this.hp).toFixed(0);
         this.characterLevelText.text = (this.level).toFixed(0);
