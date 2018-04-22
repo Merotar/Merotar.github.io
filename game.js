@@ -4,8 +4,8 @@ var targetHeight = 768;
 
 //var game = new Phaser.Game(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio,
 //    Phaser.CANVAS, 'Horror Clicker', { preload: preload, create: create , update: update});
-var game = new Phaser.Game(targetWidth, targetHeight,
-    Phaser.CANVAS, 'Horror Clicker', { preload: preload, create: create , update: update });
+//var game = new Phaser.Game(targetWidth, targetHeight,
+//    Phaser.CANVAS, 'Horror Clicker', { preload: preload, create: create , update: update });
 
 //var button;
 //var imageCanvas;
@@ -199,7 +199,19 @@ function scaleEnemies(averageLifeSpan) {
     //enemySpeedScale
 }
 
-function preload() {
+var theGame = {
+    preload: function() {
+        gamePreload();
+    },
+    create: function() {
+        gameCreate();
+    },
+    update: function() {
+        gameUpdate();
+    }
+}
+
+function gamePreload() {
     console.log("preload");
     game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
     game.load.image("button", "assets/img/button.png");
@@ -225,7 +237,7 @@ function preload() {
     console.log(game.width, game.height)
 }
 
-function create() {
+function gameCreate() {
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
     game.stage.backgroundColor = '#000000';
@@ -276,7 +288,7 @@ function create() {
     console.log("create");
 }
 
-function update() {
+function gameUpdate() {
     var dt = game.time.elapsedMS / 1000.;
     textGold.text = globalGold;
 
