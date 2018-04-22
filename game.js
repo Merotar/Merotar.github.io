@@ -59,6 +59,7 @@ var textColorEnemyHp = "#000000";
 var damageColor = "#990000";
 var fontFixelSize = Math.floor(buttonResourcesHeight / 2)
 var textFont = fontFixelSize + "px Gamja Flower";
+var gameOverTextFont = 3*fontFixelSize + "px Gamja Flower";
 
 var damageSizeX = gameWidth * 0.01;
 var damageSizeY = gameHeight * 0.01;
@@ -111,6 +112,9 @@ var averageLifeSpanIncreaseFactor = 4;
 var averageLifeSpanXpIncreaseFactor = 2;
 var maxAverage = 0.5;
 
+var timeStart;
+var timeEnd;
+
 function spawnEnemy() {
     var enemyIndex = Math.floor(Math.random() * numEnemyTypes);
     enemies.push(new Enemy(enemyConfig[enemyIndex]));
@@ -118,7 +122,18 @@ function spawnEnemy() {
 
 function damageRandomCharacter(damage) {
     var index = Math.floor(Math.random() * 3);
+    for (let i = 0; i < 3; i++) {
+        if (!characters[index].alive) {
+            index++;
+            if (index >= 3) {
+                index = 0;
+            }
+        }
+    }
     characters[index].hp -= damage;
+    if (characters[index].hp < 0) {
+        characters[index].hp = 0;
+    }
 }
 
 function addXpRandomCharacter(xp) {
@@ -211,6 +226,34 @@ var theGame = {
     }
 }
 
+var gameover = {
+    preload: function() {
+
+    },
+    create: function() {
+        imageBackground = game.add.sprite(0, 0, 'background');
+        imageBackground.width = gameWidth;
+        imageBackground.height = gameHeight;
+
+        var d = new Date();
+        timeEnd = d.getTime();
+        var timeSurvived = Math.round((timeEnd - timeStart) / 1000);
+
+        var tmpText = "Game Over\n" +
+            "You survived " + timeSurvived + " seconds\n" +
+            "Refresh the page to play again";
+        var width = gameWidth * 0.5;
+        var height = gameHeight * 0.5;
+        var posX = gameWidth/2 - width *0.5;
+        var posY = gameHeight/2 - height *0.5;
+        var gameOverText =  game.add.text(posX, posY, tmpText, { font: gameOverTextFont, fill: textColor, align: "center", boundsAlignH: "center", boundsAlignV: "middle" });
+        gameOverText.setTextBounds(0, 0, width, height);
+    },
+    update: function() {
+
+    }
+}
+
 function gamePreload() {
     console.log("preload");
     game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
@@ -285,6 +328,9 @@ function gameCreate() {
     enemySpawnTimer.loop(enemySpawnTime * 1000, spawnEnemy, this);
     enemySpawnTimer.start();
 
+    var d = new Date();
+    timeStart = d.getTime();
+
     console.log("create");
 }
 
@@ -346,6 +392,16 @@ function gameUpdate() {
         //averageLifeSpans.splice(0, averageLifeSpans.length);
         averageLifeSpans.shift();
         scaleEnemies(avg);
+    }
+
+    var isGameover = true;
+    for (let i = 0; i < 3; i++) {
+        if (characters[i].alive) {
+            isGameover = false;
+        }
+    }
+    if (isGameover) {
+        game.state.start("GameOver");
     }
 }
 

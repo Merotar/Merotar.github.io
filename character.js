@@ -37,6 +37,7 @@ class Character {
         this.skillDamageBase = config["skillDamage"];
         this.skillReloadTimeBase = config["skillReloadTime"];
         this.skillText = config["skillText"];
+        this.alive = true;
         this.xpIncreaseBase = 1;
         this.maxHp = this.maxHpBase;
         this.hp = this.maxHp;
@@ -247,6 +248,10 @@ Character.prototype.update = function () {
     this.textXp.text = "XP: " + (this.xp).toFixed(0) + "/" + (this.xpForLevelup).toFixed(0);
     this.textHp.text = "HP: " + (this.hp).toFixed(0);
     this.characterLevelText.text = (this.level).toFixed(0);
+
+    if (this.hp <= 0) {
+        this.alive = false;
+    }
 
     if (this.xp >= this.xpForLevelup) {
         this.buttonLevelUp.button.tint = 0x000000;
