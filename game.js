@@ -61,8 +61,9 @@ var textColor = "#000000";
 var textColorEnemyHp = "#000000";
 var damageColor = "#990000";
 var fontFixelSize = Math.floor(buttonResourcesHeight / 2)
-var textFont = fontFixelSize + "px Gamja Flower";
-var gameOverTextFont = 2*fontFixelSize + "px Gamja Flower";
+var font = "Gamja Flower";
+var textFont = fontFixelSize + "px " + font;
+var gameOverTextFont = 2*fontFixelSize + "px " + font;
 
 var damageSizeX = gameWidth * 0.01;
 var damageSizeY = gameHeight * 0.01;
@@ -124,11 +125,13 @@ var hitSound;
 var explosionSound;
 var hurrySound;
 var slowSound;
+var scareSound;
 
+var muteAll = false;
 var playSound = true;
-var playMusic = false;
+var playMusic = true;
 
-var enemyDamaged;
+var enemyDamagedSound;
 
 var timeSinceLastScare = 0;
 var timeToNextScareBase = 15;
@@ -261,6 +264,10 @@ function scareRandomCharacter() {
 
 var welcome = {
     preload: function() {
+        this.game.load.script(
+            font,
+            '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js'
+        );
         game.load.image("welcome", "assets/img/welcome.png");
         game.load.image("startButton", "assets/img/start.png");
     },
@@ -358,6 +365,7 @@ function gamePreload() {
     game.load.audio('explosion', ['assets/sound/explosion.mp3', 'assets/sound/explosion.ogg']);
     game.load.audio('hurry', ['assets/sound/hurry.mp3', 'assets/sound/hurry.ogg']);
     game.load.audio('slow', ['assets/sound/slow.mp3', 'assets/sound/slow.ogg']);
+    game.load.audio('scare', ['assets/sound/scare.mp3', 'assets/sound/scare.ogg']);
 
     console.log("preload finished");
     console.log(game.width, game.height)
@@ -369,6 +377,8 @@ function gameCreate() {
     game.stage.backgroundColor = '#000000';
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    if (muteAll) game.sound.mute = true;
 
     backgroundMusic = game.add.audio('music1');
     backgroundMusic.loop = true;
@@ -391,6 +401,9 @@ function gameCreate() {
 
     slowSound = game.add.audio('slow');
     slowSound.volume = 0.5;
+
+    scareSound = game.add.audio('scare');
+    scareSound.volume = 0.7;
 
     characterConfig = game.cache.getJSON('characterConfig');
     enemyConfig = game.cache.getJSON('enemyConfig');
@@ -442,7 +455,7 @@ function gameCreate() {
 function gameUpdate() {
     var dt = game.time.elapsedMS / 1000.;
     //textGold.text = globalGold;
-    //enemyDamaged = false;
+    //enemyDamagedSound = false;
 
     var colorStep = backgroundInterpolationSteps*0.5*(Math.cos(2*Math.PI*game.time.totalElapsedSeconds()*backgroundInterpolationFrequency) + 1);
     var color = Phaser.Color.interpolateColor(backgroundInterpolationTargetColor, 0xffffff, backgroundInterpolationSteps, colorStep, 1.0);
@@ -510,9 +523,9 @@ function gameUpdate() {
         game.state.start("GameOver");
     }
 
-    if (enemyDamaged) {
+    if (enemyDamagedSound) {
         hitSound.play();
-        enemyDamaged = false;
+        enemyDamagedSound = false;
     }
 
     timeSinceLastScare += dt;

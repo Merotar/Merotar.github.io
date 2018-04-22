@@ -138,7 +138,7 @@ class Character {
         this.scareEnemy.visible = false;
         this.scareEnemy.inputEnabled = false;
         this.scareEnemy.events.onInputDown.add(onClickScareEnemy, this);
-        this.scareEnemyMaxHp = 10;
+        this.scareEnemyMaxHp = 20;
         this.scareEnemyHp = this.scareEnemyMaxHp;
     }
 
@@ -157,7 +157,7 @@ class Character {
     damageEnemies() {
         if (this.alive && this.active) {
             if (enemies.length > 0 && this.playerNum != 0) {
-                enemyDamaged = true;
+                enemyDamagedSound = true;
             }
             // damage all enemies
             if (this.playerNum == 1) {
@@ -280,6 +280,7 @@ class Character {
 
 function onClickScareEnemy() {
     shakeSprite(this.scareEnemy, 3, 20);
+    enemyDamagedSound = true;
     this.scareEnemyHp--;
     var textDamage = game.add.text( this.scareEnemy.x,  this.scareEnemy.y - this.scareEnemy.height / 2, "-1", { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
     textDamage.setTextBounds(0, 0, this.scareEnemy.width, this.scareEnemy.height);//damageSizeX, damageSizeY);
@@ -298,7 +299,8 @@ Character.prototype.increaseXP = function () {
     }
 }
 
-Character.prototype.scare = function () {
+Character.prototype.scare = function (){
+    scareSound.play();
     this.scareEnemy.visible = true;
     this.scareEnemy.inputEnabled = true;
     this.scareEnemyHp = this.scareEnemyMaxHp;
