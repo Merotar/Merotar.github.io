@@ -24,6 +24,29 @@ class Button {
     }
 }
 
+class Wound {
+    constructor(x, y, size, hp){
+        this.sprite = game.add.sprite(x, y, "wound");
+        this.sprite.width = size;
+        this.sprite.height = size;
+        this.hp = hp;
+        this.sprite.visible = false;
+        this.sprite.events.onInputDown.add(function(){
+            shakeSprite(this.sprite, 1, 20);
+            enemyDamagedSound = true;
+            var textDamage = game.add.text( this.sprite.x,  this.sprite.y - this.sprite.height / 2, "-1", { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
+            textDamage.setTextBounds(0, 0, this.sprite.width, this.sprite.height);//damageSizeX, damageSizeY);
+            textDamage.lifespan = 1000;
+            textDamageList.push(textDamage);
+            this.hp--;
+        }, this);
+    }
+}
+
+Wound.prototype.freeResources = function() {
+    this.sprite.destroy();
+}
+
 class Character {
     constructor(config) {
         this.name = config["name"];
@@ -138,15 +161,27 @@ class Character {
         }, this);
         this.skillReloadTimer.start();
 
-        this.scareEnemy = game.add.image(this.innerCanvasX - 0.11 * this.innerCanvasWidth,
-            this.innerCanvasY - 0.85 * this.innerCanvasHeight, "scareEnemy");
-        this.scareEnemy.width = 1.22 * this.innerCanvasWidth;
-        this.scareEnemy.height = 1.22 * this.innerCanvasHeight;
-        this.scareEnemy.visible = false;
-        this.scareEnemy.inputEnabled = false;
-        this.scareEnemy.events.onInputDown.add(onClickScareEnemy, this);
-        this.scareEnemyMaxHp = 20;
-        this.scareEnemyHp = this.scareEnemyMaxHp;
+        this.currentScareEnemyNum = 0;
+        this.scareEnemy0 = game.add.image(this.innerCanvasX - 0.11 * this.innerCanvasWidth,
+            this.innerCanvasY - 0.85 * this.innerCanvasHeight, "scareEnemy0");
+        this.scareEnemy0.width = 1.22 * this.innerCanvasWidth;
+        this.scareEnemy0.height = 1.22 * this.innerCanvasHeight;
+        this.scareEnemy0.visible = false;
+        this.scareEnemy0.inputEnabled = false;
+        this.scareEnemy0.events.onInputDown.add(onClickScareEnemy, this);
+        this.scareEnemy0MaxHp = 20;
+        this.scareEnemy0Hp = this.scareEnemy0MaxHp;
+
+        this.scareEnemy1 = game.add.image(this.innerCanvasX - 0.11 * this.innerCanvasWidth,
+            this.innerCanvasY - 0.85 * this.innerCanvasHeight, "scareEnemy1");
+        this.scareEnemy1.width = 1.22 * this.innerCanvasWidth;
+        this.scareEnemy1.height = 1.22 * this.innerCanvasHeight;
+        this.scareEnemy1.visible = false;
+        this.scareEnemy1WoundMaxHp = 3;
+        this.wounds = [
+            new Wound(100, 100, 50, 3),
+            new Wound(200, 200, 50, 3)
+        ];
     }
 
     getButtonY(number) {
@@ -265,6 +300,22 @@ class Character {
         }, this);
     }
 
+    updateWounds() {
+        var totalHp = 0;
+        for (let i = 0; i < this.wounds.length; i++) {
+            var tmpWound = this.wounds[i];
+            if (tmpWound.hp <= 0) {
+                tmpWound.hp = 0;
+                tmpWound.sprite.visible = false;
+                tmpWound.sprite.inputEnabled = false;
+            }
+            totalHp += tmpWound.hp;
+        }
+
+        console.log("totalHp: ", totalHp);
+        return totalHp;
+    }
+
     death(){
         this.hp = 0;
         this.textHp.text = "HP: " + (this.hp).toFixed(0);
@@ -287,17 +338,16 @@ class Character {
 }
 
 function onClickScareEnemy() {
-    shakeSprite(this.scareEnemy, 3, 20);
+    shakeSprite(this.scareEnemy0, 3, 20);
     enemyDamagedSound = true;
-    this.scareEnemyHp--;
-    var textDamage = game.add.text( this.scareEnemy.x,  this.scareEnemy.y - this.scareEnemy.height / 2, "-1", { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
-    textDamage.setTextBounds(0, 0, this.scareEnemy.width, this.scareEnemy.height);//damageSizeX, damageSizeY);
+    this.scareEnemy0Hp--;
+    var textDamage = game.add.text( this.scareEnemy0.x,  this.scareEnemy0.y - this.scareEnemy0.height / 2, "-1", { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
+    textDamage.setTextBounds(0, 0, this.scareEnemy0.width, this.scareEnemy0.height);//damageSizeX, damageSizeY);
     textDamage.lifespan = 1000;
     textDamageList.push(textDamage);
 
-    if (this.scareEnemyHp <= 0) {
+    if (this.scareEnemy0Hp <= 0) {
         this.unscare();
-        timeSinceLastScare = 0;
     }
 }
 
@@ -316,11 +366,24 @@ Character.prototype.heal = function(amount){
     if (this.hp > this.maxHp) this.hp = this.maxHp;
 }
 
-Character.prototype.scare = function (){
+Character.prototype.scare = function (num = 1){
+    this.currentScareEnemyNum = num;
     scareSound.play();
-    this.scareEnemy.visible = true;
-    this.scareEnemy.inputEnabled = true;
-    this.scareEnemyHp = this.scareEnemyMaxHp;
+    if (this.currentScareEnemyNum == 1) {
+        this.scareEnemy1.visible = true;
+
+        for (let i = 0; i < this.wounds.length; i++) {
+            var tmpWound = this.wounds[i];
+            tmpWound.sprite.inputEnabled = true;
+            tmpWound.hp = this.scareEnemy1WoundMaxHp;
+            tmpWound.sprite.visible = true;
+        }
+
+    } else {
+        this.scareEnemy0.visible = true;
+        this.scareEnemy0.inputEnabled = true;
+        this.scareEnemy0Hp = this.scareEnemy0MaxHp;
+    }
     this.active = false;
 
     this.buttonLevelUp.button.tint = 0xaaaaaa;
@@ -329,11 +392,18 @@ Character.prototype.scare = function (){
     this.buttonLevelUp.text.alpha = 0.5;
     this.buttonTraining.text.alpha = 0.5;
     this.buttonUseAbility.text.alpha = 0.5;
+
 }
 
 Character.prototype.unscare = function () {
-    this.scareEnemy.visible = false;
-    this.scareEnemy.inputEnabled = false;
+    timeSinceLastScare = 0;
+    if (this.currentScareEnemyNum == 1) {
+        this.scareEnemy1.visible = false;
+    } else {
+        this.scareEnemy0.visible = false;
+        this.scareEnemy0.inputEnabled = false;
+    }
+
     this.active = true;
 
     this.buttonLevelUp.button.tint = 0x000000;
@@ -342,12 +412,19 @@ Character.prototype.unscare = function () {
     this.buttonLevelUp.text.alpha = 1;
     this.buttonTraining.text.alpha = 1;
     this.buttonUseAbility.text.alpha = 1;
+
 }
 
 Character.prototype.update = function () {
     if (this.hp <= 0) {
         this.death();
         this.alive = false;
+    }
+
+    if (this.active == false && this.currentScareEnemyNum == 1) {
+        if (this.updateWounds() <= 0) {
+            this.unscare();
+        }
     }
 
     if (this.alive && this.active) {

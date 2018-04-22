@@ -139,8 +139,8 @@ var playMusic = true;
 var enemyDamagedSound;
 
 var timeSinceLastScare = 0;
-var timeToNextScareBase = 15;
-var timeToNextScareVariationBase = 5;
+var timeToNextScareBase = 2;
+var timeToNextScareVariationBase = 2;
 var timeToNextScare = timeToNextScareBase;
 
 var buyButtonDmg;
@@ -301,7 +301,7 @@ function scareRandomCharacter() {
     var index = Math.floor(Math.random() * 2) + 1;
     var characterScared = false;
     for (let i = 0; i < 3; i++) {
-        if (characters[i].scareEnemy.visible) characterScared = true;
+        if (characters[i].scareEnemy0.visible ||characters[i].scareEnemy1.visible) characterScared = true;
     }
     if (!characterScared) {
         characters[index].scare();
@@ -406,8 +406,9 @@ function gamePreload() {
     game.load.image("home", "assets/img/home.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
     game.load.image("enemy1", "assets/img/enemy1.png");
-    game.load.image("scareEnemy", "assets/img/scareEnemy.png");
-    //game.load.image("scareEnemy2", "assets/img/scareEnemy2.png");
+    game.load.image("scareEnemy0", "assets/img/scareEnemy.png");
+    game.load.image("scareEnemy1", "assets/img/scareEnemy1.png");
+    game.load.image("wound", "assets/img/character0.png");
     game.load.image("money", "assets/img/money.png");
     game.load.image("buyButton", "assets/img/buyButton.png");
 
