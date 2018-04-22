@@ -26,7 +26,7 @@ class Enemy {
 }
 
 Enemy.prototype.update = function (dt) {
-    this.textHp.text = (this.hp).toFixed(0);
+    this.textHp.text = (Math.ceil(this.hp)).toFixed(0);
     if(this.sprite.x < enemyTargetPosX) {
         var addPosX = enemySpeedFactor * this.speed * dt * enemySpeedScale;
         this.sprite.x += addPosX
