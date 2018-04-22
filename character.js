@@ -60,18 +60,18 @@ class Character {
 
         this.buttonX = this.innerCanvasX + this.innerCanvasWidth/2 - buttonResourcesWidth/2;
         // TODO: fix border
-        this.ButtonSmallX = this.innerCanvasX + this.innerCanvasWidth/2; // this.buttonX + 0.5 * this.innerCanvasWidth;
+        this.ButtonSmallX = this.innerCanvasX + this.innerCanvasWidth / 2; // this.buttonX + 0.5 * this.innerCanvasWidth;
         this.buttonSmallWidth = 0.5 * textButtonWidth;
 
-        var textPosY = this.innerCanvasY + buttonResourcesOffsetY + 0*(buttonResourcesOffsetY + buttonResourcesHeight);
+        var textPosY = this.innerCanvasY + buttonResourcesOffsetY*1.5 + 0*(buttonResourcesOffsetY + buttonResourcesHeight);
         this.textXp = game.add.text(this.ButtonSmallX, textPosY, "XP: 0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textXp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
 
-        textPosY = this.innerCanvasY + buttonResourcesOffsetY + 0.5*(buttonResourcesOffsetY + buttonResourcesHeight);
+        textPosY = this.innerCanvasY + buttonResourcesOffsetY*1.5 + 0.5*(buttonResourcesOffsetY + buttonResourcesHeight);
         this.textDmg = game.add.text(this.ButtonSmallX, textPosY, "DMG: " + (Math.round(this.damage)).toFixed((0)), { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textDmg.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
 
-        textPosY = this.innerCanvasY + buttonResourcesOffsetY + 1.*(buttonResourcesOffsetY + buttonResourcesHeight);
+        textPosY = this.innerCanvasY + buttonResourcesOffsetY*1.5 + 1.*(buttonResourcesOffsetY + buttonResourcesHeight);
         this.textHp = game.add.text(this.ButtonSmallX, textPosY, "HP: " + Math.round(this.hp), { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textHp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
 
@@ -122,6 +122,7 @@ class Character {
         this.buttonLevelUp.button.tint = 0x000000;
         this.buttonUseAbility.button.tint = 0x000000;
         this.buttonTraining.button.tint = 0x000000;
+
         ////
 
         this.damageTimer = game.time.create(false);
@@ -169,8 +170,8 @@ class Character {
             if (this.playerNum == 1) {
                 for (let i = 0; i < enemies.length; i++) {
                     var tmpEnemy = enemies[i];
-                    tmpEnemy.hp -= this.damage;
-                    createDamageText(this.damage, tmpEnemy);
+                    tmpEnemy.hp -= this.getDamage();
+                    createDamageText(this.getDamage(), tmpEnemy);
                     this.drawAttackLine(tmpEnemy);
                 }
             }
@@ -178,8 +179,8 @@ class Character {
             if (this.playerNum == 2) {
                 if (enemies.length > 0) {
                     var index = Math.floor(Math.random() * enemies.length);
-                    enemies[index].hp -= this.damage;
-                    createDamageText(this.damage, enemies[index]);
+                    enemies[index].hp -= this.getDamage();
+                    createDamageText(this.getDamage(), enemies[index], 0.3*enemies[index].sprite.width);
                     this.drawAttackLine(enemies[index]);
                 }
             }
@@ -306,6 +307,10 @@ Character.prototype.increaseXP = function () {
     }
 }
 
+Character.prototype.getDamage = function(){
+    return this.damage * globalDamageFactorGold;
+}
+
 Character.prototype.scare = function (){
     scareSound.play();
     this.scareEnemy.visible = true;
@@ -342,8 +347,8 @@ Character.prototype.update = function () {
 
     if (this.alive && this.active) {
         this.textXp.text = "XP: " + (this.xp).toFixed(0) + "/" + (this.xpForLevelup).toFixed(0);
-        this.textHp.text = "HP: " + (this.hp).toFixed(0);
-        this.textDmg.text = "DMG: " + (this.damage).toFixed(1);
+        this.textHp.text = "HP: " + (this.hp).toFixed(0) + "/" + (this.maxHp).toFixed(0);
+        this.textDmg.text = "DMG: " + (this.getDamage()).toFixed(1);
         this.characterLevelText.text = (this.level).toFixed(0);
 
         if (this.xp >= this.xpForLevelup) {

@@ -64,6 +64,7 @@ var colorMoney = "#ffcb20"
 var fontFixelSize = Math.floor(buttonResourcesHeight / 2)
 var font = "Gamja Flower";
 var textFont = fontFixelSize + "px " + font;
+var textFontSmall = 0.8*fontFixelSize + "px " + font;
 var gameOverTextFont = 2*fontFixelSize + "px " + font;
 
 var damageSizeX = gameWidth * 0.01;
@@ -142,6 +143,34 @@ var timeToNextScareBase = 15;
 var timeToNextScareVariationBase = 5;
 var timeToNextScare = timeToNextScareBase;
 
+var buyButtonDmg;
+var buyButtonHealth;
+var buyButtonXp;
+var textBuyButtonDmg;
+var textBuyButtonHealth;
+var textBuyButtonXp;
+var costDmgBase = 5;
+var constHealthBse = 2;
+var constXpBase = 3;
+var costDmg = costDmgBase;
+var costHealth = constHealthBse;
+var costXp = constXpBase;
+var costIncrease = 2;
+
+var globalDamageFactorGold = 1.0;
+var globalDamageFactorGoldIncrease = 1.1;
+
+
+function increaseCosts() {
+    costDmg *= costIncrease;
+    costHealth *= costIncrease;
+    costXp *= costIncrease;
+}
+
+function increaseGlobalDamageFactorGold() {
+    globalDamageFactorGold *= globalDamageFactorGoldIncrease;
+}
+
 function spawnEnemy() {
     var enemyIndex = Math.floor(Math.random() * numEnemyTypes);
     enemies.push(new Enemy(enemyConfig[enemyIndex]));
@@ -168,15 +197,15 @@ function addXpRandomCharacter(xp) {
     characters[index].xp += xp;
 }
 
-function createDamageText(dmg, tmpEnemy) {
-    var textDamage = game.add.text( tmpEnemy.sprite.x,  tmpEnemy.sprite.y - tmpEnemy.height / 2, "-" + (Math.ceil(dmg)).toFixed(0), { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
+function createDamageText(dmg, tmpEnemy, offsetX = 0) {
+    var textDamage = game.add.text( tmpEnemy.sprite.x + offsetX,  tmpEnemy.sprite.y - tmpEnemy.height / 2, "-" + (Math.ceil(dmg)).toFixed(0), { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
     textDamage.setTextBounds(0, 0, tmpEnemy.width, tmpEnemy.height);//damageSizeX, damageSizeY);
     textDamage.lifespan = 1000;
     textDamageList.push(textDamage);
 }
 
-function createColorText(value, theSprite, color, offsetX) {
-    var textDamage = game.add.text( theSprite.x + offsetX,  theSprite.y - theSprite.height / 2, "+" + (Math.ceil(value)).toFixed(0), { font: textFont, fill: color, boundsAlignH: "center", boundsAlignV: "middle" });
+function createColorText(value, theSprite, color, offsetX = 0, offsetY = 0) {
+    var textDamage = game.add.text( theSprite.x + offsetX,  offsetY + theSprite.y - theSprite.height / 2, "+" + (Math.ceil(value)).toFixed(0), { font: textFont, fill: color, boundsAlignH: "center", boundsAlignV: "middle" });
     textDamage.setTextBounds(0, 0, theSprite.width, theSprite.height);//damageSizeX, damageSizeY);
     textDamage.lifespan = 1000;
     textDamageList.push(textDamage);
@@ -375,6 +404,7 @@ function gamePreload() {
     game.load.image("enemy1", "assets/img/enemy1.png");
     game.load.image("scareEnemy", "assets/img/scareEnemy.png");
     game.load.image("money", "assets/img/money.png");
+    game.load.image("buyButton", "assets/img/buyButton.png");
 
     game.load.json('enemyConfig', 'config/enemyConfig.json');
     game.load.json('characterConfig', 'config/characterConfig.json');
@@ -448,12 +478,58 @@ function gameCreate() {
     imageHome.width = statusCanvasHeight*0.6;
     imageHome.height = statusCanvasHeight*0.6;
 
-    imageMoney = game.add.sprite(0.2 *statusCanvasWidth, playersCanvasPosY  + 0.15 * statusCanvasHeight, 'money');
+    imageMoney = game.add.sprite(0.2 *statusCanvasWidth, playersCanvasPosY  + 0.05 * statusCanvasHeight, 'money');
     imageMoney.width = statusCanvasWidth * 0.1;
     imageMoney.height = statusCanvasWidth * 0.1;
 
     textMoney = game.add.text(imageMoney.x + 1.3*imageMoney.width, imageMoney.y, "0", { font: textFont, fill: textColor, boundsAlignH: "left", boundsAlignV: "middle" });
     textMoney.setTextBounds(0, 0, 2*imageMoney.width, imageMoney.height);
+
+    var buyBottonPosX = 0.1 *statusCanvasWidth;
+    var buyBottonPosY = imageMoney.y + 0.1 * statusCanvasHeight;
+    buyButtonDmg = game.add.button(buyBottonPosX, buyBottonPosY, 'buyButton', function(){
+        if (playerMoney >= costDmg) {
+            increaseGlobalDamageFactorGold();
+            increaseCosts();
+        }
+    }, this, 3, 2, 1, 0);
+    buyButtonDmg.width = 0.65 * statusCanvasWidth;
+    buyButtonDmg.height = buyButtonDmg.width / 1.6;
+    textBuyButtonDmg = game.add.text(buyBottonPosX + 0.1 *statusCanvasWidth, buyBottonPosY-buyButtonDmg.height* 0.06, "    0\nUpgrade DMG\n",
+        { font: textFont, align: "left", fill: textColor, boundsAlignH: "left", boundsAlignV: "middle" });
+    textBuyButtonDmg.setTextBounds(0, 0, buyButtonDmg.width, buyButtonDmg.height);
+    var imgBuyButtonDmg = game.add.sprite(buyBottonPosX+buyButtonDmg.width*0.15, buyBottonPosY+buyButtonDmg.height* 0.18, 'money');
+    imgBuyButtonDmg.width = statusCanvasWidth * 0.07;
+    imgBuyButtonDmg.height = statusCanvasWidth * 0.07;
+
+
+    var offsetBuyY = 0.26 * statusCanvasHeight;
+    buyBottonPosY = buyBottonPosY + offsetBuyY;
+    buyButtonHealth = game.add.button(buyBottonPosX, buyBottonPosY, 'buyButton', function(){
+
+    }, this, 3, 2, 1, 0);
+    buyButtonHealth.width = buyButtonDmg.width;
+    buyButtonHealth.height = buyButtonDmg.height;
+    textBuyButtonHealth = game.add.text(buyBottonPosX + 0.1 *statusCanvasWidth, buyBottonPosY-buyButtonDmg.height* 0.05, "    0\nHeal\n",
+        { font: textFont, align: "left", fill: textColor, boundsAlignH: "left", boundsAlignV: "middle" });
+    textBuyButtonHealth.setTextBounds(0, 0, buyButtonDmg.width, buyButtonDmg.height);
+    var imgBuyButtonHealth = game.add.sprite(buyBottonPosX+buyButtonDmg.width*0.15, buyBottonPosY+buyButtonDmg.height* 0.22, 'money');
+    imgBuyButtonHealth.width = statusCanvasWidth * 0.07;
+    imgBuyButtonHealth.height = statusCanvasWidth * 0.07;
+
+
+    buyBottonPosY = buyBottonPosY + offsetBuyY;
+    buyButtonXp = game.add.button(buyBottonPosX, buyBottonPosY, 'buyButton', function(){
+
+    }, this, 3, 2, 1, 0);
+    buyButtonXp.width = buyButtonDmg.width;
+    buyButtonXp.height = buyButtonDmg.height;
+    textBuyButtonXp = game.add.text(buyBottonPosX + 0.1 *statusCanvasWidth, buyBottonPosY-buyButtonDmg.height* 0.05, "    0\nBoost XP\n",
+        { font: textFont, align: "left", fill: textColor, boundsAlignH: "left", boundsAlignV: "middle" });
+    textBuyButtonXp.setTextBounds(0, 0, buyButtonDmg.width, buyButtonDmg.height);
+    var imgBuyButtonXp = game.add.sprite(buyBottonPosX+buyButtonDmg.width*0.15, buyBottonPosY+buyButtonDmg.height* 0.22, 'money');
+    imgBuyButtonXp.width = statusCanvasWidth * 0.07;
+    imgBuyButtonXp.height = statusCanvasWidth * 0.07;
 
     /*imageLine = game.add.sprite((gameWidth - imageLineWith) / 2 , statusCanvasHeight - gameHeight * 0.02, 'line');
     imageLine.width = imageLineWith;
@@ -481,6 +557,10 @@ function gameCreate() {
 function gameUpdate() {
     var dt = game.time.elapsedMS / 1000.;
     textMoney.text = (playerMoney).toFixed(0);
+
+    textBuyButtonDmg.text = "    " + (costDmg).toFixed(0) + "\nUpgrade DMG";
+    textBuyButtonHealth.text = "    " + (costHealth).toFixed(0) + "\nHeal";
+    textBuyButtonXp.text = "    " + (costXp).toFixed(0) + "\nBoost XP";
     //enemyDamagedSound = false;
 
     var colorStep = backgroundInterpolationSteps*0.5*(Math.cos(2*Math.PI*game.time.totalElapsedSeconds()*backgroundInterpolationFrequency) + 1);
@@ -499,7 +579,7 @@ function gameUpdate() {
             addXpRandomCharacter(tmpEnemy.xp);
             bloodExplosion(tmpEnemy);
             playerMoney += tmpEnemy.money * moneyScale;
-            createColorText(tmpEnemy.money * moneyScale, tmpEnemy.sprite, colorMoney, 0.2*tmpEnemy.sprite.width)
+            createColorText(tmpEnemy.money * moneyScale, tmpEnemy.sprite, colorMoney, 0, 0.3*tmpEnemy.sprite.height)
             tmpEnemy.freeResources();
             enemies.splice(i, 1);
             delete tmpEnemy;

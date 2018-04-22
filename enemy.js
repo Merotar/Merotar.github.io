@@ -49,8 +49,8 @@ function onClickEnemy() {
     if (characters[0].alive) {
         enemyDamagedSound = true;
         shakeSprite(this.sprite, 1, 20);
-        this.hp -= characters[0].damage;
-        createDamageText(characters[0].damage, this);
+        this.hp -= characters[0].getDamage();
+        createDamageText(characters[0].getDamage(), this, -0.3*this.sprite.width);
         //shakeScreen(5);
 
         var thePlayer = characters[0];
