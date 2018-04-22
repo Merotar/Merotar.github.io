@@ -145,26 +145,29 @@ var timeToNextScare = timeToNextScareBase;
 
 var buyButtonDmg;
 var buyButtonHealth;
-var buyButtonXp;
+var buyButtonBurstDmg;
 var textBuyButtonDmg;
 var textBuyButtonHealth;
-var textBuyButtonXp;
+var textBuyButtonBurstDmg;
 var costDmgBase = 5;
 var constHealthBse = 2;
-var constXpBase = 3;
+var costBurstDmgBase = 3;
 var costDmg = costDmgBase;
 var costHealth = constHealthBse;
-var costXp = constXpBase;
+var costBurstDmg = costBurstDmgBase;
 var costIncrease = 2;
 
 var globalDamageFactorGold = 1.0;
 var globalDamageFactorGoldIncrease = 1.1;
 
 
-function increaseCosts() {
-    costDmg *= costIncrease;
-    costHealth *= costIncrease;
-    costXp *= costIncrease;
+function increaseCosts(factor) {
+    costDmg *= costIncrease*factor;
+    costHealth *= costIncrease*factor;
+    costBurstDmg *= costIncrease*factor;
+    /*costDmg = Math.ceil(costDmg);
+    costHealth = Math.ceil(costHealth);
+    costBurstDmg = Math.ceil(costBurstDmg);*/
 }
 
 function increaseGlobalDamageFactorGold() {
@@ -327,8 +330,8 @@ var welcome = {
         imageWelcome.width = gameWidth;
         imageWelcome.height = gameHeight;
 
-        var startWidth = 0.8*300;
-        var startHeight = 0.8*200;
+        var startWidth = 0.18*gameWidth;
+        var startHeight = startWidth / 1.5;
 
         var startButton = game.add.button(gameWidth*0.9 - startWidth , 0.5*gameHeight, 'startButton', function(){
             game.state.start("TheGame");
@@ -489,8 +492,9 @@ function gameCreate() {
     var buyBottonPosY = imageMoney.y + 0.1 * statusCanvasHeight;
     buyButtonDmg = game.add.button(buyBottonPosX, buyBottonPosY, 'buyButton', function(){
         if (playerMoney >= costDmg) {
+            playerMoney -= costDmg;
             increaseGlobalDamageFactorGold();
-            increaseCosts();
+            increaseCosts(1);
         }
     }, this, 3, 2, 1, 0);
     buyButtonDmg.width = 0.65 * statusCanvasWidth;
@@ -506,7 +510,13 @@ function gameCreate() {
     var offsetBuyY = 0.26 * statusCanvasHeight;
     buyBottonPosY = buyBottonPosY + offsetBuyY;
     buyButtonHealth = game.add.button(buyBottonPosX, buyBottonPosY, 'buyButton', function(){
-
+        if (playerMoney >= costDmg) {
+            playerMoney -= costHealth;
+            increaseCosts(0.8);
+            for (let i = 0; i < 3; i++) {
+                characters[i].heal(1);
+            }
+        }
     }, this, 3, 2, 1, 0);
     buyButtonHealth.width = buyButtonDmg.width;
     buyButtonHealth.height = buyButtonDmg.height;
@@ -519,17 +529,29 @@ function gameCreate() {
 
 
     buyBottonPosY = buyBottonPosY + offsetBuyY;
-    buyButtonXp = game.add.button(buyBottonPosX, buyBottonPosY, 'buyButton', function(){
-
+    buyButtonBurstDmg = game.add.button(buyBottonPosX, buyBottonPosY, 'buyButton', function(){
+        if (playerMoney >= costBurstDmg) {
+            playerMoney -= costBurstDmg;
+            increaseCosts(0.8);
+            explosionSound.play();
+            shakeScreen(5, 20);
+            for (let i = 0; i < enemies.length; i++) {
+                var tmpEnemy = enemies[i];
+                var tmpDmg = Math.floor(tmpEnemy.hp / 2);
+                tmpEnemy.hp -= tmpDmg;
+                createDamageText(tmpDmg, tmpEnemy);
+                //this.drawAttackLine(tmpEnemy);
+            }
+        }
     }, this, 3, 2, 1, 0);
-    buyButtonXp.width = buyButtonDmg.width;
-    buyButtonXp.height = buyButtonDmg.height;
-    textBuyButtonXp = game.add.text(buyBottonPosX + 0.1 *statusCanvasWidth, buyBottonPosY-buyButtonDmg.height* 0.05, "    0\nBoost XP\n",
+    buyButtonBurstDmg.width = buyButtonDmg.width;
+    buyButtonBurstDmg.height = buyButtonDmg.height;
+    textBuyButtonBurstDmg = game.add.text(buyBottonPosX + 0.1 *statusCanvasWidth, buyBottonPosY-buyButtonDmg.height* 0.05, "    0\nWeaken\n",
         { font: textFont, align: "left", fill: textColor, boundsAlignH: "left", boundsAlignV: "middle" });
-    textBuyButtonXp.setTextBounds(0, 0, buyButtonDmg.width, buyButtonDmg.height);
-    var imgBuyButtonXp = game.add.sprite(buyBottonPosX+buyButtonDmg.width*0.15, buyBottonPosY+buyButtonDmg.height* 0.22, 'money');
-    imgBuyButtonXp.width = statusCanvasWidth * 0.07;
-    imgBuyButtonXp.height = statusCanvasWidth * 0.07;
+    textBuyButtonBurstDmg.setTextBounds(0, 0, buyButtonDmg.width, buyButtonDmg.height);
+    var imgBuyButtonBurstDmg = game.add.sprite(buyBottonPosX+buyButtonDmg.width*0.15, buyBottonPosY+buyButtonDmg.height* 0.22, 'money');
+    imgBuyButtonBurstDmg.width = statusCanvasWidth * 0.07;
+    imgBuyButtonBurstDmg.height = statusCanvasWidth * 0.07;
 
     /*imageLine = game.add.sprite((gameWidth - imageLineWith) / 2 , statusCanvasHeight - gameHeight * 0.02, 'line');
     imageLine.width = imageLineWith;
@@ -560,7 +582,7 @@ function gameUpdate() {
 
     textBuyButtonDmg.text = "    " + (costDmg).toFixed(0) + "\nUpgrade DMG";
     textBuyButtonHealth.text = "    " + (costHealth).toFixed(0) + "\nHeal";
-    textBuyButtonXp.text = "    " + (costXp).toFixed(0) + "\nBoost XP";
+    textBuyButtonBurstDmg.text = "    " + (costBurstDmg).toFixed(0) + "\nWeaken";
     //enemyDamagedSound = false;
 
     var colorStep = backgroundInterpolationSteps*0.5*(Math.cos(2*Math.PI*game.time.totalElapsedSeconds()*backgroundInterpolationFrequency) + 1);

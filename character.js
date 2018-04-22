@@ -311,6 +311,11 @@ Character.prototype.getDamage = function(){
     return this.damage * globalDamageFactorGold;
 }
 
+Character.prototype.heal = function(amount){
+    this.hp += amount;
+    if (this.hp > this.maxHp) this.hp = this.maxHp;
+}
+
 Character.prototype.scare = function (){
     scareSound.play();
     this.scareEnemy.visible = true;
