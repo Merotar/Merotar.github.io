@@ -3,12 +3,12 @@ class Enemy {
         this.width = config["width"]*gameHeight;
         this.height = config["height"]*gameHeight;
         this.posY = Math.floor(Math.random()*((enemySpawnYmax - this.height)-enemySpawnYmin+1)+enemySpawnYmin);
-        this.posX = this.width;
-        this.maxHp = config["hp"];
+        this.posX = enemyStartPosX + this.width;
+        this.maxHp = enemyHpScale * config["hp"];
         this.hp = this.maxHp;
-        this.damage = config["damage"];
+        this.damage = enemyDmgScale * config["damage"];
         this.speed = config["speed"];
-        this.xp = config["xp"];
+        this.xp = xpScale * config["xp"];
         this.name = config["name"];
 
         this.sprite = game.add.sprite(this.posX, this.posY, config["sprite"]);
@@ -35,6 +35,11 @@ Enemy.prototype.update = function (dt) {
 };
 
 Enemy.prototype.freeResources = function() {
+
+    var relativeLifetime = (this.sprite.x) / (enemyTargetPosX - this.sprite.width*0.7);
+    //console.log("lifetime: ", relativeLifetime);
+    averageLifeSpans.push(relativeLifetime);
+
     this.sprite.destroy();
     this.textHp.destroy();
 }

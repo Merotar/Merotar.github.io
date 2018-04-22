@@ -65,6 +65,7 @@ var damageSizeY = gameHeight * 0.01;
 var textDamageList= [];
 var damageTextSpeed = 0.001;
 
+var enemyStartPosX = 0;
 var enemyTargetPosX = gameWidth * 0.72;
 var enemySpeedScale = enemyTargetPosX;
 
@@ -96,6 +97,19 @@ var backgroundInterpolationTargetColor = 0xcccccc;
 var characterConfig;
 var enemyConfig;
 var numEnemyTypes;
+
+var xpNeededBase = 1.2;
+
+var enemyHpScale = 1.0;
+var enemyDmgScale = 1.0;
+var xpScale = 1.0;
+//var enemySpeedScale = 1.0;
+
+var averageLifeSpans = [];
+var numAverageLifeSpans = 3;
+var averageLifeSpanIncreaseFactor = 4;
+var averageLifeSpanXpIncreaseFactor = 2;
+var maxAverage = 0.5;
 
 function spawnEnemy() {
     var enemyIndex = Math.floor(Math.random() * numEnemyTypes);
@@ -164,9 +178,25 @@ function drawCurve(startX, startY, endX, endY) {
     imageLine = game.add.sprite(startX , startY, 'attackLine');
     imageLine.width = distance;
     imageLine.height = attackLineHeight;
-    console.log("angle:", Math.atan2(dY, dX))
+    //console.log("angle:", Math.atan2(dY, dX))
     imageLine.angle = Math.atan2(dY, dX) * 180 / Math.PI;
     return imageLine;
+}
+
+function scaleEnemies(averageLifeSpan) {
+    var multHpScale = -1 * (averageLifeSpan - maxAverage) * averageLifeSpanIncreaseFactor;
+    var multXpScale =  -1 * (averageLifeSpan - maxAverage) * averageLifeSpanXpIncreaseFactor;
+    if (multHpScale < 0) {
+        multHpScale = 0;
+    }
+    if (multXpScale < 0) {
+        multXpScale = 0;
+    }
+    console.log("multHpScale: ", multHpScale, averageLifeSpan);
+    enemyHpScale += multHpScale;
+    xpScale += multXpScale;
+    //enemyDmgScale
+    //enemySpeedScale
 }
 
 function preload() {
@@ -295,6 +325,15 @@ function update() {
             attackLineList[i].destroy();
             attackLineList.splice(i, 1);
         }
+    }
+
+    if (averageLifeSpans.length >= numAverageLifeSpans) {
+        var sum = averageLifeSpans.reduce(function(a, b) { return a + b; });
+        var avg = sum / averageLifeSpans.length;
+        console.log(averageLifeSpans);
+        //averageLifeSpans.splice(0, averageLifeSpans.length);
+        averageLifeSpans.shift();
+        scaleEnemies(avg);
     }
 }
 

@@ -169,6 +169,10 @@ class Character {
         return 1+level * 0.5;
     }
 
+    getNewXpForLevelUp(newLevel) {
+        return this.xpForLevelupBase * Math.pow(xpNeededBase, newLevel);
+    }
+
     levelUp() {
         if (this.xp >= this.xpForLevelup) {
             this.level++;
@@ -179,6 +183,7 @@ class Character {
             this.damageTime = this.damageTimeBase * this.scaleLevelGain(this.level);
             this.skillDamage =  this.skillDamageBase * this.scaleLevelGain(this.level);
             //this.skillReloadTime =  this.skillReloadTime * this.scaleLevelGain(this.level);
+            this.xpForLevelup = this.getNewXpForLevelUp(this.level);
         }
     }
 
@@ -235,13 +240,13 @@ class Character {
 }
 
 Character.prototype.increaseXP = function () {
-    this.xp += this.xpIncrease;
+    this.xp += this.xpIncrease * xpScale;
 }
 
 Character.prototype.update = function () {
-    this.textXp.text = "XP: " + this.xp;
-    this.textHp.text = "HP: " + Math.round(this.hp);
-    this.characterLevelText.text = this.level;
+    this.textXp.text = "XP: " + (this.xp).toFixed(0) + "/" + (this.xpForLevelup).toFixed(0);
+    this.textHp.text = "HP: " + (this.hp).toFixed(0);
+    this.characterLevelText.text = (this.level).toFixed(0);
 
     if (this.xp >= this.xpForLevelup) {
         this.buttonLevelUp.button.tint = 0x000000;

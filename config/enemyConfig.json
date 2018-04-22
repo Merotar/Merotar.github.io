@@ -1,9 +1,9 @@
 [
   {
     "name": "enemy0",
-    "hp" : 15,
+    "hp" : 6,
     "sprite" : "enemy0",
-    "speed" : 0.1,
+    "speed" : 0.05,
     "damage" : 1,
     "xp" : 1,
     "width" : 0.1,
@@ -11,9 +11,9 @@
   },
   {
     "name": "enemy1",
-    "hp" : 20,
+    "hp" : 10,
     "sprite" : "enemy0",
-    "speed" : 0.05,
+    "speed" : 0.03,
     "damage" : 2,
     "xp" : 2,
     "width" : 0.15,
