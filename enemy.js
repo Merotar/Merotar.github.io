@@ -45,12 +45,14 @@ Enemy.prototype.freeResources = function() {
 }
 
 function onClickEnemy() {
-    this.hp -= characters[0].damage;
-    createDamageText(characters[0].damage, this);
-    //shakeScreen(5);
+    if (characters[0].alive) {
+        this.hp -= characters[0].damage;
+        createDamageText(characters[0].damage, this);
+        //shakeScreen(5);
 
-    var thePlayer = characters[0];
-    var curve = drawCurve(thePlayer.innerCanvasX + thePlayer.innerCanvasWidth / 2, thePlayer.innerCanvasY, this.sprite.centerX, this.sprite.centerY);
-    curve.lifespan = attackLineDuration;
-    attackLineList.push(curve);
+        var thePlayer = characters[0];
+        var curve = drawCurve(thePlayer.innerCanvasX + thePlayer.innerCanvasWidth / 2, thePlayer.innerCanvasY, this.sprite.centerX, this.sprite.centerY);
+        curve.lifespan = attackLineDuration;
+        attackLineList.push(curve);
+    }
 }
