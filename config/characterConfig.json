@@ -8,7 +8,7 @@
     "picture" : "character0",
     "skillDamage" : 5,
     "skillReloadTime" : 10,
-    "skillText" : "Damage All!",
+    "skillText" : "Roundhouse kick",
     "xpForLevelUp" : 10
   },
   {
@@ -20,7 +20,7 @@
     "picture" : "character1",
     "skillDamage" : 2,
     "skillReloadTime" : 7,
-    "skillText" : "Slow Enemies!",
+    "skillText" : "Flashbang",
     "xpForLevelUp" : 10
   },
   {
@@ -32,7 +32,7 @@
     "picture" : "character2",
     "skillDamage" : 8,
     "skillReloadTime" : 8,
-    "skillText" : "Hurry!",
+    "skillText" : "Hurry up",
     "xpForLevelUp" : 10
   }
 ]

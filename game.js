@@ -537,7 +537,7 @@ function gameCreate() {
     }, this, 3, 2, 1, 0);
     buyButtonHealth.width = buyButtonDmg.width;
     buyButtonHealth.height = buyButtonDmg.height;
-    textBuyButtonHealth = game.add.text(buyBottonPosX + 0.1 *statusCanvasWidth, buyBottonPosY-buyButtonDmg.height* 0.05, "    0\nHeal\n",
+    textBuyButtonHealth = game.add.text(buyBottonPosX + 0.1 *statusCanvasWidth, buyBottonPosY-buyButtonDmg.height* 0.05, "    0\nHeal ALL+1\n",
         { font: textFont, align: "left", fill: textColor, boundsAlignH: "left", boundsAlignV: "middle" });
     textBuyButtonHealth.setTextBounds(0, 0, buyButtonDmg.width, buyButtonDmg.height);
     var imgBuyButtonHealth = game.add.sprite(buyBottonPosX+buyButtonDmg.width*0.15, buyBottonPosY+buyButtonDmg.height* 0.22, 'money');
@@ -554,7 +554,7 @@ function gameCreate() {
             shakeScreen(5, 20);
             for (let i = 0; i < enemies.length; i++) {
                 var tmpEnemy = enemies[i];
-                var tmpDmg = Math.floor(tmpEnemy.hp / 2);
+                var tmpDmg = Math.floor(0.8*tmpEnemy.hp);
                 tmpEnemy.hp -= tmpDmg;
                 createDamageText(tmpDmg, tmpEnemy);
                 //this.drawAttackLine(tmpEnemy);
@@ -598,7 +598,7 @@ function gameUpdate() {
     textMoney.text = (playerMoney).toFixed(0);
 
     textBuyButtonDmg.text = "    " + (costDmg).toFixed(0) + "\nUpgrade DMG";
-    textBuyButtonHealth.text = "    " + (costHealth).toFixed(0) + "\nHeal";
+    textBuyButtonHealth.text = "    " + (costHealth).toFixed(0) + "\nHeal ALL+1";
     textBuyButtonBurstDmg.text = "    " + (costBurstDmg).toFixed(0) + "\nWeaken";
     textGlobalDmg.text = "DMG x " + (globalDamageFactorGold).toFixed(1);
     //enemyDamagedSound = false;
