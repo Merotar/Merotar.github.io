@@ -181,6 +181,7 @@ function preload() {
     game.load.image("character0", "assets/img/character0.png");
     game.load.image("character1", "assets/img/character0.png");
     game.load.image("character2", "assets/img/character0.png");
+    game.load.image("characterLevel", "assets/img/characterLevel.png");
     game.load.image("blood0", "assets/img/blood0.png");
     game.load.image("line", "assets/img/line.png");
     game.load.image("attackLine", "assets/img/attackLine.png");

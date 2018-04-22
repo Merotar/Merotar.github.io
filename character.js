@@ -75,6 +75,15 @@ class Character {
         this.portraitCanvas.width = 0.5 * buttonResourcesWidth;
         this.portraitCanvas.height = 2 * buttonResourcesHeight + buttonResourcesOffsetY;
 
+        this.characterLevelImage = game.add.sprite(this.imageCanvas.x - 0.01 * this.imageCanvas.width,
+            this.imageCanvas.y - 0.02 * this.imageCanvas.height, "characterLevel");
+        this.characterLevelImage.width = 0.15 * this.imageCanvas.width;
+        this.characterLevelImage.height = 0.15 * this.imageCanvas.height;
+
+        this.characterLevelText = game.add.text(this.characterLevelImage.x, this.characterLevelImage.y, "0",
+            { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
+        this.characterLevelText.setTextBounds(0, 0, this.characterLevelImage.width, this.characterLevelImage.height);
+
         this.buttonProgress = game.add.image(this.buttonX, this.getButtonY(3), "buttonProgress");
         var tmpWidth = this.buttonProgress.width;
         var tmpHeight = this.buttonProgress.height;
@@ -232,6 +241,7 @@ Character.prototype.increaseXP = function () {
 Character.prototype.update = function () {
     this.textXp.text = "XP: " + this.xp;
     this.textHp.text = "HP: " + Math.round(this.hp);
+    this.characterLevelText.text = this.level;
 
     if (this.xp >= this.xpForLevelup) {
         this.buttonLevelUp.button.tint = 0x000000;
