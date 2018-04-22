@@ -122,6 +122,8 @@ var backgroundMusic;
 var windSound;
 var hitSound;
 var explosionSound;
+var hurrySound;
+var slowSound;
 
 var enemyDamaged;
 
@@ -293,6 +295,8 @@ function gamePreload() {
     game.load.audio('wind', ['assets/sound/wind.mp3', 'assets/sound/wind.ogg']);
     game.load.audio('hit', ['assets/sound/hit.mp3', 'assets/sound/hit.ogg']);
     game.load.audio('explosion', ['assets/sound/explosion.mp3', 'assets/sound/explosion.ogg']);
+    game.load.audio('hurry', ['assets/sound/hurry.mp3', 'assets/sound/hurry.ogg']);
+    game.load.audio('slow', ['assets/sound/slow.mp3', 'assets/sound/slow.ogg']);
 
     console.log("preload finished");
     console.log(game.width, game.height)
@@ -319,7 +323,13 @@ function gameCreate() {
     hitSound.volume = 0.1;
 
     explosionSound = game.add.audio('explosion');
-    explosionSound.volume = 0.2;
+    explosionSound.volume = 0.3;
+
+    hurrySound = game.add.audio('hurry');
+    hurrySound.volume = 0.4;
+
+    slowSound = game.add.audio('slow');
+    slowSound.volume = 0.5;
 
     characterConfig = game.cache.getJSON('characterConfig');
     enemyConfig = game.cache.getJSON('enemyConfig');

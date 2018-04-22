@@ -222,6 +222,7 @@ class Character {
     }
 
     skillSlowEnemies() {
+        slowSound.play();
         enemySpeedFactor = 1.0 / this.skillDamage;
         game.time.events.add(skillSlowDuration, function() {
             enemySpeedFactor = 1;
@@ -229,6 +230,7 @@ class Character {
     }
 
     skillIncreaseAttachSpeed() {
+        hurrySound.play();
         this.damageTimer.destroy();
         this.damageTimer = game.time.create(false);
         this.damageTimer.loop(this.damageTime * 1000 / this.skillDamage, this.damageEnemies, this);
