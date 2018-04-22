@@ -31,5 +31,16 @@
     "width" : 0.15,
     "height" : 0.07,
     "money" : 1
+  },
+  {
+    "name": "enemy3",
+    "hp" : 2,
+    "sprite" : "enemy2",
+    "speed" : 0.2,
+    "damage" : 1,
+    "xp" : 1,
+    "width" : 0.05,
+    "height" : 0.05,
+    "money" : 1
   }
 ]

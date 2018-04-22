@@ -169,7 +169,7 @@ class Character {
         this.scareEnemy0.visible = false;
         this.scareEnemy0.inputEnabled = false;
         this.scareEnemy0.events.onInputDown.add(onClickScareEnemy, this);
-        this.scareEnemy0MaxHp = 20;
+        this.scareEnemy0MaxHp = 15;
         this.scareEnemy0Hp = this.scareEnemy0MaxHp;
 
         var tmpX = this.innerCanvasX - 0.11 * this.innerCanvasWidth;
@@ -180,7 +180,7 @@ class Character {
         this.scareEnemy1.width = tmpWidth;
         this.scareEnemy1.height = tmpHeight;
         this.scareEnemy1.visible = false;
-        this.scareEnemy1WoundMaxHp = 3;
+        this.scareEnemy1WoundMaxHp = 2;
         this.wounds = [
             new Wound(tmpX + 0.1*tmpWidth, tmpY + 0.1*tmpHeight, 50, 3),
             new Wound(tmpX + 0.05*tmpWidth, tmpY + 0.42*tmpHeight, 50, 3),

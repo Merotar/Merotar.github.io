@@ -79,7 +79,7 @@ var enemySpeedScale = enemyTargetPosX;
 var characters = [];
 var enemies = [];
 var enemySpawnTimer;
-var enemySpawnTime = 2;
+var enemySpawnTime = 1.5;
 var enemySpawnYmin = gameHeight*0.1;
 var enemySpawnYmax = statusCanvasHeight - gameHeight*0.05;
 var backgroundSwitchTimer;
@@ -413,6 +413,7 @@ function gamePreload() {
     game.load.image("home", "assets/img/home.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
     game.load.image("enemy1", "assets/img/enemy1.png");
+    game.load.image("enemy2", "assets/img/enemy2.png");
     game.load.image("scareEnemy0", "assets/img/scareEnemy.png");
     game.load.image("scareEnemy1", "assets/img/scareEnemy1.png");
     game.load.image("wound", "assets/img/wound.png");
