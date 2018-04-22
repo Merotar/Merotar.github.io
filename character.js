@@ -63,13 +63,19 @@ class Character {
         this.ButtonSmallX = this.innerCanvasX + this.innerCanvasWidth/2; // this.buttonX + 0.5 * this.innerCanvasWidth;
         this.buttonSmallWidth = 0.5 * textButtonWidth;
 
-        this.textXp = game.add.text(this.ButtonSmallX, this.getButtonY(0), "XP: 0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
+        var textPosY = this.innerCanvasY + buttonResourcesOffsetY + 0*(buttonResourcesOffsetY + buttonResourcesHeight);
+        this.textXp = game.add.text(this.ButtonSmallX, textPosY, "XP: 0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textXp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
 
-        //this.textBonus = game.add.text(this.ButtonSmallX, this.getButtonY(1), "No Bonus", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
-        //this.textBonus.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
-        this.textHp = game.add.text(this.ButtonSmallX, this.getButtonY(1), "HP: " + Math.round(this.hp), { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
+        textPosY = this.innerCanvasY + buttonResourcesOffsetY + 0.5*(buttonResourcesOffsetY + buttonResourcesHeight);
+        this.textDmg = game.add.text(this.ButtonSmallX, textPosY, "DMG: " + (Math.round(this.damage)).toFixed((0)), { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
+        this.textDmg.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
+
+        textPosY = this.innerCanvasY + buttonResourcesOffsetY + 1.*(buttonResourcesOffsetY + buttonResourcesHeight);
+        this.textHp = game.add.text(this.ButtonSmallX, textPosY, "HP: " + Math.round(this.hp), { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
         this.textHp.setTextBounds(0, 0, this.buttonSmallWidth, textButtonHeight + textShiftY);
+
+
 
         this.portraitCanvasX = this.innerCanvasX + buttonResourcesOffsetX + playerCanvasBorderX*playerCanvasWidth;
         this.portraitCanvasY = this.innerCanvasY + buttonResourcesOffsetY;
@@ -273,6 +279,7 @@ class Character {
         this.characterLevelText.alpha = 0.5;
         this.textHp.alpha = 0.5;
         this.textXp.alpha = 0.5;
+        this.textDmg.alpha = 0.5;
         this.textName.alpha = 0.5;
         this.characterNameImage.alpha = 0.5;
     }
@@ -336,6 +343,7 @@ Character.prototype.update = function () {
     if (this.alive && this.active) {
         this.textXp.text = "XP: " + (this.xp).toFixed(0) + "/" + (this.xpForLevelup).toFixed(0);
         this.textHp.text = "HP: " + (this.hp).toFixed(0);
+        this.textDmg.text = "DMG: " + (this.damage).toFixed(1);
         this.characterLevelText.text = (this.level).toFixed(0);
 
         if (this.xp >= this.xpForLevelup) {
