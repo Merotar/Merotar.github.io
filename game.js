@@ -115,10 +115,10 @@ var moneyScale = 1.0;
 //var enemySpeedScale = 1.0;
 
 var averageLifeSpans = [];
-var numAverageLifeSpans = 3;
+var numAverageLifeSpans = 10;
 var averageLifeSpanHpIncreaseFactor = 5;
 var averageLifeSpanXpIncreaseFactor = 2;
-var averageLifeSpanMoneyIncreaseFactor = 1.5;
+var averageLifeSpanMoneyIncreaseFactor = 3;
 var maxAverage = 0.5;
 
 var timeStart;
