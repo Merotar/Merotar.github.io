@@ -148,6 +148,7 @@ var buyButtonHealth;
 var buyButtonBurstDmg;
 var textBuyButtonDmg;
 var textBuyButtonHealth;
+var textGlobalDmg;
 var textBuyButtonBurstDmg;
 var costDmgBase = 5;
 var constHealthBse = 2;
@@ -406,6 +407,7 @@ function gamePreload() {
     game.load.image("enemy0", "assets/img/enemy0.png");
     game.load.image("enemy1", "assets/img/enemy1.png");
     game.load.image("scareEnemy", "assets/img/scareEnemy.png");
+    //game.load.image("scareEnemy2", "assets/img/scareEnemy2.png");
     game.load.image("money", "assets/img/money.png");
     game.load.image("buyButton", "assets/img/buyButton.png");
 
@@ -506,6 +508,13 @@ function gameCreate() {
     imgBuyButtonDmg.width = statusCanvasWidth * 0.07;
     imgBuyButtonDmg.height = statusCanvasWidth * 0.07;
 
+    var imageGlobalDmg = game.add.sprite(gameWidth * 0.02, gameHeight* 0.02, 'buyButton');
+    imageGlobalDmg.width = buyButtonDmg.width*0.8;
+    imageGlobalDmg.height = buyButtonDmg.height*0.8;
+    //globalDamageFactorGold
+    textGlobalDmg = game.add.text(imageGlobalDmg.x + gameWidth * 0.02, imageGlobalDmg.y, "DMG x 1", { font: textFont, align: "center", fill: textColor, boundsAlignH: "left", boundsAlignV: "middle" });
+    textGlobalDmg.setTextBounds(0, 0, imageGlobalDmg.width, imageGlobalDmg.height);
+
 
     var offsetBuyY = 0.26 * statusCanvasHeight;
     buyBottonPosY = buyBottonPosY + offsetBuyY;
@@ -583,6 +592,7 @@ function gameUpdate() {
     textBuyButtonDmg.text = "    " + (costDmg).toFixed(0) + "\nUpgrade DMG";
     textBuyButtonHealth.text = "    " + (costHealth).toFixed(0) + "\nHeal";
     textBuyButtonBurstDmg.text = "    " + (costBurstDmg).toFixed(0) + "\nWeaken";
+    textGlobalDmg.text = "DMG x " + (globalDamageFactorGold).toFixed(1);
     //enemyDamagedSound = false;
 
     var colorStep = backgroundInterpolationSteps*0.5*(Math.cos(2*Math.PI*game.time.totalElapsedSeconds()*backgroundInterpolationFrequency) + 1);
