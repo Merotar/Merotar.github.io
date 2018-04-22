@@ -226,6 +226,33 @@ function scaleEnemies(averageLifeSpan) {
     //enemySpeedScale
 }
 
+var welcome = {
+    preload: function() {
+        game.load.image("welcome", "assets/img/welcome.png");
+        game.load.image("startButton", "assets/img/start.png");
+    },
+    create: function() {
+        game.scale.pageAlignHorizontally = true;
+        game.scale.pageAlignVertically = true;
+        game.stage.backgroundColor = '#000000';
+        var imageWelcome = game.add.sprite(0, 0, 'welcome');
+        imageWelcome.width = gameWidth;
+        imageWelcome.height = gameHeight;
+
+        var startWidth = 0.8*300;
+        var startHeight = 0.8*200;
+
+        var startButton = game.add.button(gameWidth*0.9 - startWidth , 0.5*gameHeight, 'startButton', function(){
+            game.state.start("TheGame");
+        }, this, 3, 2, 1, 0);
+        startButton.width = startWidth;
+        startButton.height = startHeight;
+
+    },
+    update: function() {
+    }
+}
+
 var theGame = {
     preload: function() {
         gamePreload();
@@ -275,7 +302,7 @@ function gamePreload() {
     game.load.image("buttonProgress", "assets/img/buttonProgress.png");
     game.load.image("canvas", "assets/img/canvas.png");
     game.load.image("background", "assets/img/background.png");
-    game.load.image("background2", "assets/img/background2.png");
+    //game.load.image("background2", "assets/img/background2.png");
     game.load.image("character0", "assets/img/character0.png");
     game.load.image("character1", "assets/img/character1.png");
     game.load.image("character2", "assets/img/character2.png");
@@ -359,8 +386,8 @@ function gameCreate() {
     imageLine.height = imageLineHeight;
     */
 
-    textGold = game.add.text(textGoldPosX, textGoldPosY, "0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
-    textGold.setTextBounds(0, 0, textGoldWidth, textGoldHeight + textShiftY);
+    //textGold = game.add.text(textGoldPosX, textGoldPosY, "0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
+    //textGold.setTextBounds(0, 0, textGoldWidth, textGoldHeight + textShiftY);
 
     characters.push(new Character(characterConfig[0]));
     characters.push(new Character(characterConfig[1]));
@@ -380,7 +407,7 @@ function gameCreate() {
 
 function gameUpdate() {
     var dt = game.time.elapsedMS / 1000.;
-    textGold.text = globalGold;
+    //textGold.text = globalGold;
     //enemyDamaged = false;
 
     var colorStep = backgroundInterpolationSteps*0.5*(Math.cos(2*Math.PI*game.time.totalElapsedSeconds()*backgroundInterpolationFrequency) + 1);
