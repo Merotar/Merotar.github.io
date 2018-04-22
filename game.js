@@ -48,6 +48,9 @@ var buttonResourcesHeight =  (playerCanvasInnerHeight - 6*buttonResourcesOffsetY
 var textButtonWidth = buttonResourcesWidth;
 var textButtonHeight = buttonResourcesHeight;
 
+var characterNameWidth = buttonResourcesWidth * 0.8;
+var characterNameHeight = buttonResourcesHeight * 0.8;
+
 var textGold;
 var textGoldWidth = 100;
 var textGoldHeight = 100;
@@ -265,8 +268,9 @@ function gamePreload() {
     game.load.image("background", "assets/img/background.png");
     game.load.image("background2", "assets/img/background2.png");
     game.load.image("character0", "assets/img/character0.png");
-    game.load.image("character1", "assets/img/character0.png");
-    game.load.image("character2", "assets/img/character0.png");
+    game.load.image("character1", "assets/img/character1.png");
+    game.load.image("character2", "assets/img/character2.png");
+    game.load.image("characterName", "assets/img/characterName.png");
     game.load.image("characterLevel", "assets/img/characterLevel.png");
     game.load.image("blood0", "assets/img/blood0.png");
     game.load.image("line", "assets/img/line.png");

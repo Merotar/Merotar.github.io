@@ -76,6 +76,15 @@ class Character {
         this.portraitCanvas.width = 0.5 * buttonResourcesWidth;
         this.portraitCanvas.height = 2 * buttonResourcesHeight + buttonResourcesOffsetY;
 
+        this.characterNameImage = game.add.sprite(this.imageCanvas.x + (this.imageCanvas.width- characterNameWidth) / 2,
+            this.imageCanvas.y - 0.3 * characterNameHeight, "characterName");
+        this.characterNameImage.width = characterNameWidth;
+        this.characterNameImage.height = characterNameHeight;
+
+        this.textName = game.add.text(this.characterNameImage.x, this.characterNameImage.y, this.name, { font: textFont,
+            fill: textColor, align: "center", boundsAlignH: "center", boundsAlignV: "middle" });
+        this.textName.setTextBounds(0, 0, this.characterNameImage.width, this.characterNameImage.height);
+
         this.characterLevelImage = game.add.sprite(this.imageCanvas.x - 0.01 * this.imageCanvas.width,
             this.imageCanvas.y - 0.02 * this.imageCanvas.height, "characterLevel");
         this.characterLevelImage.width = 0.15 * this.imageCanvas.width;
@@ -243,6 +252,8 @@ class Character {
         this.characterLevelText.alpha = 0.5;
         this.textHp.alpha = 0.5;
         this.textXp.alpha = 0.5;
+        this.textName.alpha = 0.5;
+        this.characterNameImage.alpha = 0.5;
     }
 }
 
