@@ -131,6 +131,7 @@ var explosionSound;
 var hurrySound;
 var slowSound;
 var scareSound;
+var frogsSound;
 
 var muteAll = false;
 var playSound = true;
@@ -158,6 +159,11 @@ var costDmg = costDmgBase;
 var costHealth = constHealthBse;
 var costBurstDmg = costBurstDmgBase;
 var costIncrease = 2;
+
+var buttonMusic;
+var buttonSound;
+var imgMusicCross;
+var imgSoundCross;
 
 var globalDamageFactorGold = 1.0;
 var globalDamageFactorGoldIncrease = 1.1;
@@ -419,6 +425,9 @@ function gamePreload() {
     game.load.image("wound", "assets/img/wound.png");
     game.load.image("money", "assets/img/money.png");
     game.load.image("buyButton", "assets/img/buyButton.png");
+    game.load.image("buttonSound", "assets/img/buttonSound.png");
+    game.load.image("buttonMusic", "assets/img/buttonMusic.png");
+    game.load.image("cross", "assets/img/cross.png");
 
     game.load.json('enemyConfig', 'config/enemyConfig.json');
     game.load.json('characterConfig', 'config/characterConfig.json');
@@ -430,6 +439,7 @@ function gamePreload() {
     game.load.audio('hurry', ['assets/sound/hurry.mp3', 'assets/sound/hurry.ogg']);
     game.load.audio('slow', ['assets/sound/slow.mp3', 'assets/sound/slow.ogg']);
     game.load.audio('scare', ['assets/sound/scare.mp3', 'assets/sound/scare.ogg']);
+    game.load.audio('frogs', ['assets/sound/frogs.mp3', 'assets/sound/frogs.ogg']);
 
     console.log("preload finished");
     console.log(game.width, game.height)
@@ -453,6 +463,11 @@ function gameCreate() {
     windSound.loop = true;
     windSound.volume = 0.5;
     if (playMusic) windSound.play();
+
+    frogsSound = game.add.audio('frogs');
+    frogsSound.loop = true;
+    frogsSound.volume = 0.1;
+    if (playMusic) frogsSound.play();
 
     hitSound = game.add.audio('hit');
     hitSound.volume = 0.1;
@@ -551,7 +566,7 @@ function gameCreate() {
         if (playerMoney >= costBurstDmg) {
             playerMoney -= costBurstDmg;
             increaseCosts(0.8);
-            explosionSound.play();
+            if (playSound) explosionSound.play();
             shakeScreen(5, 20);
             for (let i = 0; i < enemies.length; i++) {
                 var tmpEnemy = enemies[i];
@@ -576,6 +591,44 @@ function gameCreate() {
     imageLine.height = imageLineHeight;
     */
 
+    buttonMusic = game.add.button(imageGlobalDmg.x, imageGlobalDmg.y + imageGlobalDmg.height*1.2, 'buttonMusic', function(){
+        if (playMusic) {
+            playMusic = false;
+            imgMusicCross.visible = true;
+            backgroundMusic.pause();
+            windSound.pause();
+            frogsSound.pause();
+        } else {
+            playMusic = true;
+            imgMusicCross.visible = false;
+            backgroundMusic.resume();
+            windSound.resume();
+            frogsSound.resume();
+        }
+    }, this, 3, 2, 1, 0);
+    buttonMusic.width = gameWidth * 0.03;
+    buttonMusic.height = gameWidth * 0.03;
+    imgMusicCross = game.add.sprite(buttonMusic.x, buttonMusic.y, 'cross');
+    imgMusicCross.width = buttonMusic.width;
+    imgMusicCross.height = buttonMusic.height;
+    imgMusicCross.visible = !playMusic;
+
+
+    buttonSound = game.add.button(imageGlobalDmg.x, buttonMusic.y + buttonMusic.height*1.2, 'buttonSound', function(){
+        if (playSound) {
+            playSound = false;
+            imgSoundCross.visible = true;
+        } else {
+            playSound = true;
+            imgSoundCross.visible = false;
+        }
+    }, this, 3, 2, 1, 0);
+    buttonSound.width = gameWidth * 0.03;
+    buttonSound.height = gameWidth * 0.03;
+    imgSoundCross = game.add.sprite(buttonSound.x, buttonSound.y, 'cross');
+    imgSoundCross.width = buttonSound.width;
+    imgSoundCross.height = buttonSound.height;
+    imgSoundCross.visible = !playSound;
 
 
     characters.push(new Character(characterConfig[0]));
@@ -673,7 +726,7 @@ function gameUpdate() {
     }
 
     if (enemyDamagedSound) {
-        hitSound.play();
+        if (playSound) hitSound.play();
         enemyDamagedSound = false;
     }
 

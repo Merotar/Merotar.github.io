@@ -274,7 +274,7 @@ class Character {
     }
 
     skillDamageAllEnemies() {
-        explosionSound.play();
+        if (playSound) explosionSound.play();
         shakeScreen(5, 20);
         for (let i = 0; i < enemies.length; i++) {
             var tmpEnemy = enemies[i];
@@ -285,7 +285,7 @@ class Character {
     }
 
     skillSlowEnemies() {
-        slowSound.play();
+        if (playSound) slowSound.play();
         enemySpeedFactor = 1.0 / this.skillDamage;
         game.time.events.add(skillSlowDuration, function() {
             enemySpeedFactor = 1;
@@ -293,7 +293,7 @@ class Character {
     }
 
     skillIncreaseAttachSpeed() {
-        hurrySound.play();
+        if (playSound) hurrySound.play();
         this.damageTimer.destroy();
         this.damageTimer = game.time.create(false);
         this.damageTimer.loop(this.damageTime * 1000 / this.skillDamage, this.damageEnemies, this);
@@ -374,7 +374,7 @@ Character.prototype.heal = function(amount){
 
 Character.prototype.scare = function (num = 1){
     this.currentScareEnemyNum = num;
-    scareSound.play();
+    if (playSound) scareSound.play();
     if (this.currentScareEnemyNum == 1) {
         this.scareEnemy1.visible = true;
 
