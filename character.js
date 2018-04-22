@@ -30,11 +30,13 @@ class Character {
         this.playerNum = config["playerNum"];
         this.maxHpBase = config["hp"];
         this.xp = 0;
+        this.xpForLevelupBase = config["xpForLevelUp"];
         this.level = 0;
         this.damageBase = config["damage"];
         this.damageTimeBase = config["damageTime"];
         this.skillDamageBase = config["skillDamage"];
         this.skillReloadTimeBase = config["skillReloadTime"];
+        this.skillText = config["skillText"];
         this.xpIncreaseBase = 1;
         this.maxHp = this.maxHpBase;
         this.hp = this.maxHp;
@@ -44,6 +46,7 @@ class Character {
         this.skillDamage =  this.skillDamageBase;
         this.skillReloadTime = this.skillReloadTimeBase;
         this.currentSkillTime = this.skillReloadTimeBase;
+        this.xpForLevelup = this.xpForLevelupBase;
         this.innerCanvasX = playersCanvasPosX + this.playerNum*playerCanvasWidth + playerCanvasWidth*playerCanvasBorderX/2;
         this.innerCanvasY = playersCanvasPosY  + playerCanvasHeight*playerCanvasBorderY/2;
         this.innerCanvasWidth = playerCanvasWidth * (1-playerCanvasBorderX);
@@ -72,11 +75,27 @@ class Character {
         this.portraitCanvas.width = 0.5 * buttonResourcesWidth;
         this.portraitCanvas.height = 2 * buttonResourcesHeight + buttonResourcesOffsetY;
 
-        this.buttonLevelUp = new Button("Level Up", this.buttonX, this.getButtonY(2) , buttonResourcesWidth, buttonResourcesHeight, this, 0);
-        this.buttonLevelUp.button.alpha = 0.5;
-        this.buttonUseAbility = new Button("Use Ability", this.buttonX, this.getButtonY(3) , buttonResourcesWidth, buttonResourcesHeight, this, 1);
-        this.buttonTraining = new Button("Training", this.buttonX, this.getButtonY(4) , buttonResourcesWidth, buttonResourcesHeight, this, 2);
+        this.buttonProgress = game.add.image(this.buttonX, this.getButtonY(3), "buttonProgress");
+        var tmpWidth = this.buttonProgress.width;
+        var tmpHeight = this.buttonProgress.height;
+        this.buttonProgress.width =  buttonResourcesWidth;
+        this.buttonProgress.height = buttonResourcesHeight;
+        this.buttonProgressMaxWidth = tmpWidth;
+        this.buttonProgressCrop = new Phaser.Rectangle(0, 0, tmpWidth, tmpHeight)
+        this.buttonProgress.crop(this.buttonProgressCrop);
 
+        this.buttonProgressLevelUp = game.add.image(this.buttonX, this.getButtonY(2), "buttonProgress");
+        this.buttonProgressLevelUp.width =  buttonResourcesWidth;
+        this.buttonProgressLevelUp.height = buttonResourcesHeight;
+        this.buttonProgressLevelUpCrop = new Phaser.Rectangle(0, 0, tmpWidth, tmpHeight);
+        this.buttonProgressLevelUp.crop(this.buttonProgressLevelUpCrop);
+
+        this.buttonLevelUp = new Button("Level Up", this.buttonX, this.getButtonY(2) , buttonResourcesWidth, buttonResourcesHeight, this, 0);
+        this.buttonUseAbility = new Button(this.skillText, this.buttonX, this.getButtonY(3) , buttonResourcesWidth, buttonResourcesHeight, this, 1);
+        this.buttonTraining = new Button("Training", this.buttonX, this.getButtonY(4) , buttonResourcesWidth, buttonResourcesHeight, this, 2);
+        this.buttonLevelUp.button.tint = 0x000000;
+        this.buttonUseAbility.button.tint = 0x000000;
+        this.buttonTraining.button.tint = 0x000000;
         ////
 
         this.damageTimer = game.time.create(false);
@@ -142,9 +161,9 @@ class Character {
     }
 
     levelUp() {
-        if (this.xp >= xpForLevelup) {
+        if (this.xp >= this.xpForLevelup) {
             this.level++;
-            this.xp -= xpForLevelup;
+            this.xp -= this.xpForLevelup;
             this.maxHp = this.maxHpBase * this.scaleLevelGain(this.level);
             //this.xpIncrease = this.xpIncreaseBase * this.scaleLevelGain(this.level);
             this.damage = this.damageBase * this.scaleLevelGain(this.level);
@@ -214,20 +233,27 @@ Character.prototype.update = function () {
     this.textXp.text = "XP: " + this.xp;
     this.textHp.text = "HP: " + Math.round(this.hp);
 
-    if (this.xp >= xpForLevelup) {
-        this.buttonLevelUp.button.alpha = 1.0;
+    if (this.xp >= this.xpForLevelup) {
+        this.buttonLevelUp.button.tint = 0x000000;
     } else {
-        this.buttonLevelUp.button.alpha = 0.5;
+        this.buttonLevelUp.button.tint = 0xaaaaaa;
     }
 
     if (this.currentSkillTime >= this.skillReloadTime) {
-        this.buttonUseAbility.button.alpha = 1.0;
+        this.buttonUseAbility.button.tint = 0x000000;;
     } else {
-        this.buttonUseAbility.button.alpha = 0.5;
+        this.buttonUseAbility.button.tint = 0xaaaaaa;;
     }
 
     for (let i = 0; i < textDamageList.length; i++) {
         var tmpText = textDamageList[i];
         tmpText.y -= damageTextSpeed * gameHeight;
     }
+
+    this.buttonProgressCrop.width = this.buttonProgressMaxWidth * (this.currentSkillTime / this.skillReloadTime);
+    this.buttonProgress.updateCrop();
+    //this.buttonProgress.crop(this.buttonProgressCrop);
+
+    this.buttonProgressLevelUpCrop.width = this.buttonProgressMaxWidth * (this.xp / this.xpForLevelup);
+    this.buttonProgressLevelUp.updateCrop();
 };

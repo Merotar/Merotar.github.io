@@ -7,7 +7,9 @@
     "hp" : 10,
     "picture" : "character0",
     "skillDamage" : 5,
-    "skillReloadTime" : 10
+    "skillReloadTime" : 10,
+    "skillText" : "Damage All!",
+    "xpForLevelUp" : 10
   },
   {
     "playerNum" : 1,
@@ -17,7 +19,9 @@
     "hp" : 5,
     "picture" : "character1",
     "skillDamage" : 2,
-    "skillReloadTime" : 7
+    "skillReloadTime" : 7,
+    "skillText" : "Slow Enemies!",
+    "xpForLevelUp" : 10
   },
   {
     "playerNum" : 2,
@@ -27,6 +31,8 @@
     "hp" : 7,
     "picture" : "character2",
     "skillDamage" : 8,
-    "skillReloadTime" : 8
+    "skillReloadTime" : 8,
+    "skillText" : "Hurry!",
+    "xpForLevelUp" : 10
   }
 ]

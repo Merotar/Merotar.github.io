@@ -87,7 +87,7 @@ var attackLineList = []
 var attackLineDuration = 100;
 var attackLineHeight = 10;
 
-var xpForLevelup = 10;
+//var xpForLevelup = 10;
 var bloodEmitterList = [];
 
 var backgroundInterpolationSteps = 30;
@@ -174,6 +174,7 @@ function preload() {
     game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
     game.load.image("button", "assets/img/button.png");
     game.load.image("buttonWide", "assets/img/buttonWide.png");
+    game.load.image("buttonProgress", "assets/img/buttonProgress.png");
     game.load.image("canvas", "assets/img/canvas.png");
     game.load.image("background", "assets/img/background.png");
     game.load.image("background2", "assets/img/background2.png");

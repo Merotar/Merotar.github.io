@@ -12,6 +12,8 @@ class Enemy {
         this.name = config["name"];
 
         this.sprite = game.add.sprite(this.posX, this.posY, config["sprite"]);
+        this.sprite.alpha = 0;
+        game.add.tween(this.sprite).to( { alpha: 1 }, 2000, Phaser.Easing.Linear.None, true, 0, 0, false);
         this.sprite.width = this.width;
         this.sprite.height = this.height;
         this.sprite.tint = 0xffffff;
