@@ -7,7 +7,8 @@
     "damage" : 1,
     "xp" : 1,
     "width" : 0.1,
-    "height" : 0.1
+    "height" : 0.1,
+    "money" : 1
   },
   {
     "name": "enemy1",
@@ -17,7 +18,8 @@
     "damage" : 2,
     "xp" : 2,
     "width" : 0.15,
-    "height" : 0.15
+    "height" : 0.15,
+    "money" : 1
   },
   {
     "name": "enemy2",
@@ -27,6 +29,7 @@
     "damage" : 1,
     "xp" : 1,
     "width" : 0.15,
-    "height" : 0.07
+    "height" : 0.07,
+    "money" : 1
   }
 ]

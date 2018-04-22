@@ -13,13 +13,13 @@ var imageLine;
 var imageHome;
 var imageBackground;
 var imageBackground2;
+var imageMoney;
 
 var gameWidth = targetWidth; //window.innerWidth * window.devicePixelRatio;
 var gameHeight = targetHeight; //window.innerHeight * window.devicePixelRatio;
 console.log("wh: ", gameWidth, gameHeight)
 
-var globalGold = 0;
-var goldIncrease = 1;
+var playerMoney = 0;
 
 //var imageCanvasWidth = gameWidth*0.25;
 //var imageCanvasHeight = gameHeight*0.45;
@@ -51,7 +51,7 @@ var textButtonHeight = buttonResourcesHeight;
 var characterNameWidth = buttonResourcesWidth * 0.8;
 var characterNameHeight = buttonResourcesHeight * 0.8;
 
-var textGold;
+var textMoney;
 var textGoldWidth = 100;
 var textGoldHeight = 100;
 var textGoldPosX = playersCanvasPosX * 0.5 - textGoldWidth / 2;
@@ -60,6 +60,7 @@ var textShiftY = 0;
 var textColor = "#000000";
 var textColorEnemyHp = "#000000";
 var damageColor = "#990000";
+var colorMoney = "#ffcb20"
 var fontFixelSize = Math.floor(buttonResourcesHeight / 2)
 var font = "Gamja Flower";
 var textFont = fontFixelSize + "px " + font;
@@ -87,7 +88,7 @@ var shakeScreenTimer;
 var enemySpeedFactor = 1;
 var attackSpeedFactor = 1;
 var skillSlowDuration = 3000;
-var skillAttackSpeedDuration = 3000;
+var skillAttackSpeedDuration = 5000;
 
 var attackLineList = []
 var attackLineDuration = 100;
@@ -97,8 +98,9 @@ var attackLineHeight = 10;
 var bloodEmitterList = [];
 
 var backgroundInterpolationSteps = 30;
-var backgroundInterpolationFrequency = 0.2;
-var backgroundInterpolationTargetColor = 0xcccccc;
+var backgroundInterpolationFrequency = 0.1;
+var backgroundInterpolationStartColor = 0xbbbbbb;
+var backgroundInterpolationTargetColor = 0x888888;
 var characterConfig;
 var enemyConfig;
 var numEnemyTypes;
@@ -108,12 +110,14 @@ var xpNeededBase = 1.2;
 var enemyHpScale = 1.0;
 var enemyDmgScale = 1.0;
 var xpScale = 1.0;
+var moneyScale = 1.0;
 //var enemySpeedScale = 1.0;
 
 var averageLifeSpans = [];
 var numAverageLifeSpans = 3;
 var averageLifeSpanIncreaseFactor = 4;
 var averageLifeSpanXpIncreaseFactor = 2;
+var averageLifeSpanMoneyIncreaseFactor = 1.5;
 var maxAverage = 0.5;
 
 var timeStart;
@@ -167,6 +171,13 @@ function addXpRandomCharacter(xp) {
 function createDamageText(dmg, tmpEnemy) {
     var textDamage = game.add.text( tmpEnemy.sprite.x,  tmpEnemy.sprite.y - tmpEnemy.height / 2, "-" + (Math.ceil(dmg)).toFixed(0), { font: textFont, fill: damageColor, boundsAlignH: "center", boundsAlignV: "middle" });
     textDamage.setTextBounds(0, 0, tmpEnemy.width, tmpEnemy.height);//damageSizeX, damageSizeY);
+    textDamage.lifespan = 1000;
+    textDamageList.push(textDamage);
+}
+
+function createColorText(value, theSprite, color, offsetX) {
+    var textDamage = game.add.text( theSprite.x + offsetX,  theSprite.y - theSprite.height / 2, "+" + (Math.ceil(value)).toFixed(0), { font: textFont, fill: color, boundsAlignH: "center", boundsAlignV: "middle" });
+    textDamage.setTextBounds(0, 0, theSprite.width, theSprite.height);//damageSizeX, damageSizeY);
     textDamage.lifespan = 1000;
     textDamageList.push(textDamage);
 }
@@ -238,6 +249,7 @@ function drawCurve(startX, startY, endX, endY) {
 function scaleEnemies(averageLifeSpan) {
     var multHpScale = -1 * (averageLifeSpan - maxAverage) * averageLifeSpanIncreaseFactor;
     var multXpScale =  -1 * (averageLifeSpan - maxAverage) * averageLifeSpanXpIncreaseFactor;
+    var multMoneyScale =  -1 * (averageLifeSpan - maxAverage) * averageLifeSpanMoneyIncreaseFactor;
     if (multHpScale < 0) {
         multHpScale = 0;
     }
@@ -247,6 +259,7 @@ function scaleEnemies(averageLifeSpan) {
     console.log("multHpScale: ", multHpScale, averageLifeSpan);
     enemyHpScale += multHpScale;
     xpScale += multXpScale;
+    moneyScale += multMoneyScale;
     //enemyDmgScale
     //enemySpeedScale
 }
@@ -361,6 +374,7 @@ function gamePreload() {
     game.load.image("enemy0", "assets/img/enemy0.png");
     game.load.image("enemy1", "assets/img/enemy1.png");
     game.load.image("scareEnemy", "assets/img/scareEnemy.png");
+    game.load.image("money", "assets/img/money.png");
 
     game.load.json('enemyConfig', 'config/enemyConfig.json');
     game.load.json('characterConfig', 'config/characterConfig.json');
@@ -409,7 +423,7 @@ function gameCreate() {
     slowSound.volume = 0.5;
 
     scareSound = game.add.audio('scare');
-    scareSound.volume = 0.7;
+    scareSound.volume = 0.9;
 
     characterConfig = game.cache.getJSON('characterConfig');
     enemyConfig = game.cache.getJSON('enemyConfig');
@@ -434,13 +448,19 @@ function gameCreate() {
     imageHome.width = statusCanvasHeight*0.6;
     imageHome.height = statusCanvasHeight*0.6;
 
+    imageMoney = game.add.sprite(0.2 *statusCanvasWidth, playersCanvasPosY  + 0.15 * statusCanvasHeight, 'money');
+    imageMoney.width = statusCanvasWidth * 0.1;
+    imageMoney.height = statusCanvasWidth * 0.1;
+
+    textMoney = game.add.text(imageMoney.x + 1.3*imageMoney.width, imageMoney.y, "0", { font: textFont, fill: textColor, boundsAlignH: "left", boundsAlignV: "middle" });
+    textMoney.setTextBounds(0, 0, 2*imageMoney.width, imageMoney.height);
+
     /*imageLine = game.add.sprite((gameWidth - imageLineWith) / 2 , statusCanvasHeight - gameHeight * 0.02, 'line');
     imageLine.width = imageLineWith;
     imageLine.height = imageLineHeight;
     */
 
-    //textGold = game.add.text(textGoldPosX, textGoldPosY, "0", { font: textFont, fill: textColor, boundsAlignH: "center", boundsAlignV: "middle" });
-    //textGold.setTextBounds(0, 0, textGoldWidth, textGoldHeight + textShiftY);
+
 
     characters.push(new Character(characterConfig[0]));
     characters.push(new Character(characterConfig[1]));
@@ -460,11 +480,11 @@ function gameCreate() {
 
 function gameUpdate() {
     var dt = game.time.elapsedMS / 1000.;
-    //textGold.text = globalGold;
+    textMoney.text = (playerMoney).toFixed(0);
     //enemyDamagedSound = false;
 
     var colorStep = backgroundInterpolationSteps*0.5*(Math.cos(2*Math.PI*game.time.totalElapsedSeconds()*backgroundInterpolationFrequency) + 1);
-    var color = Phaser.Color.interpolateColor(backgroundInterpolationTargetColor, 0xffffff, backgroundInterpolationSteps, colorStep, 1.0);
+    var color = Phaser.Color.interpolateColor(backgroundInterpolationTargetColor, backgroundInterpolationStartColor, backgroundInterpolationSteps, colorStep, 1.0);
     //console.log("totalElapsedSeconds:", colorStep);
     imageBackground.tint = color;
 
@@ -478,6 +498,8 @@ function gameUpdate() {
         if (tmpEnemy.hp <= 0) {
             addXpRandomCharacter(tmpEnemy.xp);
             bloodExplosion(tmpEnemy);
+            playerMoney += tmpEnemy.money * moneyScale;
+            createColorText(tmpEnemy.money * moneyScale, tmpEnemy.sprite, colorMoney, 0.2*tmpEnemy.sprite.width)
             tmpEnemy.freeResources();
             enemies.splice(i, 1);
             delete tmpEnemy;
@@ -540,8 +562,4 @@ function gameUpdate() {
         timeSinceLastScare = 0;
         timeToNextScare = timeToNextScareBase + Math.random()*timeToNextScareVariationBase;
     }
-}
-
-function actionOnClick() {
-    globalGold += goldIncrease;
 }

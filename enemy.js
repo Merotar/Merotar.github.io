@@ -10,6 +10,7 @@ class Enemy {
         this.speed = config["speed"];
         this.xp = xpScale * config["xp"];
         this.name = config["name"];
+        this.money = config["money"];
 
         this.sprite = game.add.sprite(this.posX, this.posY, config["sprite"]);
         this.sprite.alpha = 0;

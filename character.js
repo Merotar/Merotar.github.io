@@ -187,26 +187,26 @@ class Character {
     }
 
     scaleLevelGain(level) {
-        return 1+level * 0.5;
+        return 1+level * 1;
     }
 
     getNewXpForLevelUp(newLevel) {
-        if (this.alive && this.active) {
-            return this.xpForLevelupBase * Math.pow(xpNeededBase, newLevel);
-        }
+        return this.xpForLevelupBase * Math.pow(xpNeededBase, newLevel);
     }
 
     levelUp() {
-        if (this.xp >= this.xpForLevelup) {
-            this.level++;
-            this.xp -= this.xpForLevelup;
-            this.maxHp = this.maxHpBase * this.scaleLevelGain(this.level);
-            //this.xpIncrease = this.xpIncreaseBase * this.scaleLevelGain(this.level);
-            this.damage = this.damageBase * this.scaleLevelGain(this.level);
-            this.damageTime = this.damageTimeBase * this.scaleLevelGain(this.level);
-            this.skillDamage =  this.skillDamageBase * this.scaleLevelGain(this.level);
-            //this.skillReloadTime =  this.skillReloadTime * this.scaleLevelGain(this.level);
-            this.xpForLevelup = this.getNewXpForLevelUp(this.level);
+        if (this.alive && this.active) {
+            if (this.xp >= this.xpForLevelup) {
+                this.level++;
+                this.xp -= this.xpForLevelup;
+                //this.maxHp = this.maxHpBase * this.scaleLevelGain(this.level);
+                //this.xpIncrease = this.xpIncreaseBase * this.scaleLevelGain(this.level);
+                this.damage = this.damageBase * this.scaleLevelGain(this.level);
+                this.damageTime = this.damageTimeBase * this.scaleLevelGain(this.level);
+                this.skillDamage = this.skillDamageBase * this.scaleLevelGain(this.level);
+                //this.skillReloadTime =  this.skillReloadTime * this.scaleLevelGain(this.level);
+                this.xpForLevelup = this.getNewXpForLevelUp(this.level);
+            }
         }
     }
 
