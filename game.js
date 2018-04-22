@@ -273,6 +273,7 @@ function gamePreload() {
     game.load.image("attackLine", "assets/img/attackLine.png");
     game.load.image("home", "assets/img/home.png");
     game.load.image("enemy0", "assets/img/enemy0.png");
+    game.load.image("enemy1", "assets/img/enemy1.png");
 
     game.load.json('enemyConfig', 'config/enemyConfig.json');
     game.load.json('characterConfig', 'config/characterConfig.json');

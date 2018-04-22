@@ -18,5 +18,15 @@
     "xp" : 2,
     "width" : 0.15,
     "height" : 0.15
+  },
+  {
+    "name": "enemy2",
+    "hp" : 3,
+    "sprite" : "enemy1",
+    "speed" : 0.12,
+    "damage" : 1,
+    "xp" : 1,
+    "width" : 0.15,
+    "height" : 0.07
   }
 ]
