@@ -119,6 +119,11 @@ var timeStart;
 var timeEnd;
 
 var backgroundMusic;
+var windSound;
+var hitSound;
+var explosionSound;
+
+var enemyDamaged;
 
 function spawnEnemy() {
     var enemyIndex = Math.floor(Math.random() * numEnemyTypes);
@@ -284,7 +289,10 @@ function gamePreload() {
     game.load.json('enemyConfig', 'config/enemyConfig.json');
     game.load.json('characterConfig', 'config/characterConfig.json');
 
-    game.load.audio('music1', ['assets/sound/music1.mp3', 'assets/sound/music1.ogg']);
+    game.load.audio('music1', ['assets/sound/music1.mp3', 'assets/sound/wind.ogg']);
+    game.load.audio('wind', ['assets/sound/wind.mp3', 'assets/sound/wind.ogg']);
+    game.load.audio('hit', ['assets/sound/hit.mp3', 'assets/sound/hit.ogg']);
+    game.load.audio('explosion', ['assets/sound/explosion.mp3', 'assets/sound/explosion.ogg']);
 
     console.log("preload finished");
     console.log(game.width, game.height)
@@ -299,8 +307,19 @@ function gameCreate() {
 
     backgroundMusic = game.add.audio('music1');
     backgroundMusic.loop = true;
-    backgroundMusic.volume = 0.3;
+    backgroundMusic.volume = 0.2;
     backgroundMusic.play();
+
+    windSound = game.add.audio('wind');
+    windSound.loop = true;
+    windSound.volume = 0.5;
+    windSound.play();
+
+    hitSound = game.add.audio('hit');
+    hitSound.volume = 0.1;
+
+    explosionSound = game.add.audio('explosion');
+    explosionSound.volume = 0.2;
 
     characterConfig = game.cache.getJSON('characterConfig');
     enemyConfig = game.cache.getJSON('enemyConfig');
@@ -352,6 +371,7 @@ function gameCreate() {
 function gameUpdate() {
     var dt = game.time.elapsedMS / 1000.;
     textGold.text = globalGold;
+    //enemyDamaged = false;
 
     var colorStep = backgroundInterpolationSteps*0.5*(Math.cos(2*Math.PI*game.time.totalElapsedSeconds()*backgroundInterpolationFrequency) + 1);
     var color = Phaser.Color.interpolateColor(backgroundInterpolationTargetColor, 0xffffff, backgroundInterpolationSteps, colorStep, 1.0);
@@ -417,6 +437,11 @@ function gameUpdate() {
     }
     if (isGameover) {
         game.state.start("GameOver");
+    }
+
+    if (enemyDamaged) {
+        hitSound.play();
+        enemyDamaged = false;
     }
 }
 

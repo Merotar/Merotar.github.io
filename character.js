@@ -145,6 +145,9 @@ class Character {
 
     damageEnemies() {
         if (this.alive) {
+            if (enemies.length > 0 && this.playerNum != 0) {
+                enemyDamaged = true;
+            }
             // damage all enemies
             if (this.playerNum == 1) {
                 for (let i = 0; i < enemies.length; i++) {
@@ -208,6 +211,7 @@ class Character {
     }
 
     skillDamageAllEnemies() {
+        explosionSound.play();
         shakeScreen(5, 20);
         for (let i = 0; i < enemies.length; i++) {
             var tmpEnemy = enemies[i];
