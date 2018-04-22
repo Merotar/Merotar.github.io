@@ -6,4 +6,5 @@ Click them to death!!
 
 ***
 
-Created in the Ludum Dare 41 event.
+Created during the Ludum Dare 41 event.
+https://ldjam.com/events/ludum-dare/41/nightmare-clicker
